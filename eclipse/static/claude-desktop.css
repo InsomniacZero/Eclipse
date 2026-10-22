@@ -1,0 +1,1404 @@
+/* =====================================================================
+   Claude Code Desktop App Interactive Showcase (Anthropic Replica)
+   Adheres to DESIGN-SYS.md, glass aesthetics, and vanilla CSS tokens
+   ===================================================================== */
+
+/* Dual Showcase Row: Video Hero Showcase + Claude Desktop App (Matching 1080/1238 Aspect Ratio) */
+.claudecode-showcase-row {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  justify-content: flex-start;
+  gap: 28px;
+  width: 100%;
+  margin-top: 6px;
+  margin-bottom: 24px;
+}
+
+/* 1. Video Showcase Companion Card */
+.claudecode-video-card {
+  height: clamp(480px, calc(100vh - 270px), 580px);
+  aspect-ratio: 1080 / 1238;
+  width: auto;
+  max-width: 100%;
+  flex: 0 0 auto;
+  background: #141416;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.claudecode-video-card:hover {
+  border-color: rgba(255, 255, 255, 0.16);
+  box-shadow: 0 28px 70px -15px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.claudecode-video-card video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.claudecode-video-controls {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 5;
+}
+
+.claudecode-video-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: rgba(18, 18, 20, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #f4f4f5;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  pointer-events: auto;
+  user-select: none;
+}
+
+.claudecode-video-live-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  animation: pulse-dot 1.8s infinite;
+}
+
+.claudecode-video-sound-btn {
+  background: rgba(18, 18, 20, 0.78);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  color: #d4d4d8;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  pointer-events: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+  transition: color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+.claudecode-video-sound-btn:hover {
+  color: #ffffff;
+  background: rgba(30, 30, 35, 0.95);
+  transform: scale(1.06);
+}
+
+/* 2. Claude Code Desktop App Showcase Section (Spans Remaining Screen Width) */
+.DesktopApp-module-scss-module__Q63uga__desktopApp,
+#desktopApp {
+  height: clamp(480px, calc(100vh - 270px), 580px);
+  flex: 1 1 0%;
+  min-width: 0;
+  width: 100%;
+  margin: 0;
+  position: relative;
+}
+
+#desktopApp .container {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Outer Window Shell */
+.AppShell-module-scss-module__F71GCG__window {
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  max-height: none;
+  background: #161618;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px -15px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  overflow: hidden;
+  position: relative;
+  font-family: var(--font-sans, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  color: #e4e4e7;
+  user-select: none;
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  grid-template-rows: 38px minmax(0, 1fr);
+  grid-template-areas:
+    "titlebar titlebar"
+    "sidebar main";
+}
+
+/* Titlebar */
+.AppShell-module-scss-module__F71GCG__titlebar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 38px;
+  min-height: 38px;
+  padding: 0 14px;
+  background: #1b1b1e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  z-index: 10;
+}
+
+/* Stoplights */
+.AppShell-module-scss-module__F71GCG__stoplights {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.AppShell-module-scss-module__F71GCG__stoplight {
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  display: inline-block;
+  opacity: 0.9;
+  transition: opacity 0.15s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__stoplights:hover .AppShell-module-scss-module__F71GCG__stoplight {
+  opacity: 1;
+}
+
+.AppShell-module-scss-module__F71GCG__stoplightClose {
+  background-color: #ff5f56;
+  border: 1px solid #e0443e;
+}
+
+.AppShell-module-scss-module__F71GCG__stoplightMin {
+  background-color: #ffbd2e;
+  border: 1px solid #dea123;
+}
+
+.AppShell-module-scss-module__F71GCG__stoplightMax {
+  background-color: #27c93f;
+  border: 1px solid #1aab29;
+}
+
+/* Titlebar Buttons */
+.AppShell-module-scss-module__F71GCG__titlebarButtons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.AppShell-module-scss-module__F71GCG__titlebarButton {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  padding: 5px 7px;
+  border-radius: 5px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease, background-color 0.15s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__titlebarButton:not([disabled]):hover {
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.AppShell-module-scss-module__F71GCG__titlebarButton[disabled] {
+  opacity: 0.35;
+  cursor: default;
+}
+
+/* Window Content Body (2-pane layout) */
+.AppShell-module-scss-module__F71GCG__window {
+  display: grid;
+  grid-template-columns: 200px minmax(0, 1fr);
+  grid-template-rows: 38px minmax(0, 1fr);
+  grid-template-areas:
+    "titlebar titlebar"
+    "sidebar main";
+}
+
+.AppShell-module-scss-module__F71GCG__titlebar {
+  grid-area: titlebar;
+}
+
+/* When sidebar is collapsed */
+.AppShell-module-scss-module__F71GCG__window.sidebar-collapsed {
+  grid-template-columns: 0px minmax(0, 1fr);
+}
+
+/* =====================================================================
+   1. Left Sidebar
+   ===================================================================== */
+.AppShell-module-scss-module__F71GCG__sidebar {
+  grid-area: sidebar;
+  display: flex;
+  flex-direction: column;
+  background: #141416;
+  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+  min-width: 0;
+  transition: width 0.25s cubic-bezier(0.2, 0.9, 0.3, 1), opacity 0.2s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__window.sidebar-collapsed .AppShell-module-scss-module__F71GCG__sidebar {
+  width: 0;
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Mode Row (Home / Code) */
+.AppShell-module-scss-module__F71GCG__modeRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.AppShell-module-scss-module__F71GCG__modeTab {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  padding: 6px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__modeTab:not([disabled]):hover {
+  color: #f4f4f5;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.AppShell-module-scss-module__F71GCG__modeTabActive {
+  color: #d97757 !important;
+  background: rgba(217, 119, 87, 0.12) !important;
+}
+
+/* Navigation Top */
+.AppShell-module-scss-module__F71GCG__navTop {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 8px 6px 8px;
+}
+
+.AppShell-module-scss-module__F71GCG__navItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.12s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__navItem:not([disabled]):hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #f4f4f5;
+}
+
+.AppShell-module-scss-module__F71GCG__navItem[disabled] {
+  cursor: default;
+  color: #52525b;
+}
+
+.AppShell-module-scss-module__F71GCG__navItemDim {
+  color: #52525b;
+}
+
+.AppShell-module-scss-module__F71GCG__navSlot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  color: inherit;
+  flex-shrink: 0;
+}
+
+.AppShell-module-scss-module__F71GCG__newDisc {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #d97757;
+  color: #ffffff;
+}
+
+.AppShell-module-scss-module__F71GCG__navBadge {
+  margin-left: auto;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 1px 5px;
+  border-radius: 3px;
+  background: rgba(217, 119, 87, 0.18);
+  color: #d97757;
+}
+
+/* Sessions List */
+.AppShell-module-scss-module__F71GCG__sessions {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  padding: 6px 8px;
+  gap: 12px;
+}
+
+.AppShell-module-scss-module__F71GCG__sessionGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.AppShell-module-scss-module__F71GCG__sectionHeader {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #52525b;
+  padding: 4px 10px 2px 10px;
+}
+
+.AppShell-module-scss-module__F71GCG__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-radius: 6px;
+  padding: 2px;
+  transition: background-color 0.12s ease;
+  position: relative;
+}
+
+.AppShell-module-scss-module__F71GCG__row:hover {
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.AppShell-module-scss-module__F71GCG__rowActive {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
+
+.AppShell-module-scss-module__F71GCG__rowSelect {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 5px 8px;
+  color: #d4d4d8;
+  font-size: 12px;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.AppShell-module-scss-module__F71GCG__rowActive .AppShell-module-scss-module__F71GCG__rowSelect {
+  color: #ffffff;
+  font-weight: 500;
+}
+
+.AppShell-module-scss-module__F71GCG__rowLabel {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+.AppShell-module-scss-module__F71GCG__rowIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  color: #71717a;
+}
+
+.AppShell-module-scss-module__F71GCG__rowIconDiff {
+  color: #d97757;
+}
+
+.AppShell-module-scss-module__F71GCG__rowIconDot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #71717a;
+}
+
+.AppShell-module-scss-module__F71GCG__rowIconWorking {
+  background: #10b981;
+  box-shadow: 0 0 6px rgba(16, 185, 129, 0.6);
+  animation: pulse-dot 1.8s infinite;
+}
+
+@keyframes pulse-dot {
+  0% { transform: scale(0.9); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(0.9); opacity: 0.8; }
+}
+
+.AppShell-module-scss-module__F71GCG__rowIconRing {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid #71717a;
+}
+
+.AppShell-module-scss-module__F71GCG__rowIconUnread {
+  background: #3b82f6;
+}
+
+.AppShell-module-scss-module__F71GCG__rowMore {
+  background: transparent;
+  border: none;
+  color: #52525b;
+  padding: 4px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.15s ease, color 0.15s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__row:hover .AppShell-module-scss-module__F71GCG__rowMore {
+  opacity: 1;
+}
+
+.AppShell-module-scss-module__F71GCG__rowMore:hover {
+  color: #e4e4e7;
+}
+
+/* Sidebar Footer */
+.AppShell-module-scss-module__F71GCG__footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: #141416;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.AppShell-module-scss-module__F71GCG__footerUser {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.AppShell-module-scss-module__F71GCG__footerAvatar {
+  width: 22px;
+  height: 22px;
+  border-radius: 4px;
+  overflow: hidden;
+  display: inline-flex;
+  --color-olive: #3f4238;
+  --color-oat: #e6dfcf;
+}
+
+.AppShell-module-scss-module__F71GCG__footerName {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #e4e4e7;
+  max-width: 110px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.AppShell-module-scss-module__F71GCG__footerCaret {
+  color: #71717a;
+}
+
+.AppShell-module-scss-module__F71GCG__footerAction {
+  color: #71717a;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__footerAction:hover {
+  color: #f4f4f5;
+}
+
+/* =====================================================================
+   2. Middle Main Transcript & Composer
+   ===================================================================== */
+.AppShell-module-scss-module__F71GCG__main {
+  grid-area: main;
+  display: flex;
+  flex-direction: column;
+  background: #18181b;
+  min-width: 0;
+  overflow: hidden;
+  position: relative;
+}
+
+.AppShell-module-scss-module__F71GCG__mainScroll {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+  padding: 14px 20px 20px 20px;
+  gap: 16px;
+}
+
+.AppShell-module-scss-module__F71GCG__col {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* Breadcrumb */
+.AppShell-module-scss-module__F71GCG__breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: #71717a;
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.AppShell-module-scss-module__F71GCG__breadcrumbRepo {
+  font-weight: 600;
+  color: #a1a1aa;
+}
+
+.AppShell-module-scss-module__F71GCG__breadcrumbSeparator {
+  color: #52525b;
+}
+
+.AppShell-module-scss-module__F71GCG__breadcrumbTitle {
+  color: #e4e4e7;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.AppShell-module-scss-module__F71GCG__breadcrumbCaret {
+  color: #71717a;
+  margin-left: 2px;
+}
+
+/* Transcript Blocks */
+.AppShell-module-scss-module__F71GCG__transcriptBlocks {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* User Message */
+.AppShell-module-scss-module__F71GCG__userMessage {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 4px;
+}
+
+.AppShell-module-scss-module__F71GCG__userBubble {
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px 12px 2px 12px;
+  padding: 10px 14px;
+  font-size: 13px;
+  color: #f4f4f5;
+  line-height: 1.5;
+  max-width: 85%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Assistant Reply Message */
+.AppShell-module-scss-module__F71GCG__reply {
+  display: flex;
+  flex-direction: column;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #d4d4d8;
+}
+
+.AppShell-module-scss-module__F71GCG__reply p {
+  margin: 0 0 6px 0;
+}
+
+.AppShell-module-scss-module__F71GCG__reply code {
+  font-family: var(--font-mono, monospace);
+  font-size: 11.5px;
+  background: rgba(255, 255, 255, 0.08);
+  padding: 1.5px 5px;
+  border-radius: 4px;
+  color: #f4f4f5;
+}
+
+.AppShell-module-scss-module__F71GCG__reply strong {
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.AppShell-module-scss-module__F71GCG__messageActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.AppShell-module-scss-module__F71GCG__messageActions button {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  padding: 2px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  transition: color 0.15s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__messageActions button:hover {
+  color: #e4e4e7;
+}
+
+.AppShell-module-scss-module__F71GCG__messageTimestamp {
+  font-size: 11px;
+  color: #52525b;
+}
+
+/* Tool Cards */
+.AppShell-module-scss-module__F71GCG__toolCard {
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: 8px;
+  background: #1e1e22;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__toolCard:hover {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.AppShell-module-scss-module__F71GCG__toolCardHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 8px 12px;
+  background: transparent;
+  border: none;
+  color: #a1a1aa;
+  font-size: 12.5px;
+  font-weight: 500;
+  text-align: left;
+  cursor: pointer;
+}
+
+.AppShell-module-scss-module__F71GCG__toolCardHeader strong {
+  color: #e4e4e7;
+}
+
+.AppShell-module-scss-module__F71GCG__diffAdded {
+  color: #10b981;
+  font-weight: 600;
+  font-size: 11.5px;
+  margin-left: 6px;
+}
+
+.AppShell-module-scss-module__F71GCG__diffRemoved {
+  color: #ef4444;
+  font-weight: 600;
+  font-size: 11.5px;
+  margin-left: 3px;
+}
+
+.AppShell-module-scss-module__F71GCG__toolCardCaret {
+  color: #71717a;
+  transition: transform 0.2s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__toolCardHeader[aria-expanded="false"] .AppShell-module-scss-module__F71GCG__toolCardCaret {
+  transform: rotate(-90deg);
+}
+
+.AppShell-module-scss-module__F71GCG__toolCardBodyBare {
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Code Card (Diff Viewer) */
+.CodeCard-module-scss-module__xiQRCG__card {
+  background: #111113;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  font-family: var(--font-mono, monospace);
+  font-size: 11.5px;
+}
+
+.CodeCard-module-scss-module__xiQRCG__path {
+  padding: 6px 12px;
+  font-size: 11px;
+  color: #71717a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.CodeCard-module-scss-module__xiQRCG__copy {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  background: transparent;
+  border: none;
+  color: #71717a;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.CodeCard-module-scss-module__xiQRCG__copy:hover {
+  color: #e4e4e7;
+}
+
+.CodeCard-module-scss-module__xiQRCG__body {
+  padding: 6px 0;
+  overflow-x: auto;
+}
+
+.CodeCard-module-scss-module__xiQRCG__line {
+  display: flex;
+  align-items: center;
+  padding: 1.5px 12px;
+  line-height: 1.45;
+}
+
+.CodeCard-module-scss-module__xiQRCG__lineAdd {
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.CodeCard-module-scss-module__xiQRCG__lineNumber {
+  width: 24px;
+  min-width: 24px;
+  color: #52525b;
+  font-size: 10px;
+  user-select: none;
+  text-align: right;
+  margin-right: 10px;
+}
+
+.CodeCard-module-scss-module__xiQRCG__lineSign {
+  width: 12px;
+  color: #10b981;
+  font-weight: 700;
+  user-select: none;
+}
+
+.CodeCard-module-scss-module__xiQRCG__code {
+  font-family: inherit;
+  color: #d4d4d8;
+  white-space: pre;
+}
+
+.CodeCard-module-scss-module__xiQRCG__keyword {
+  color: #f43f5e;
+}
+
+.CodeCard-module-scss-module__xiQRCG__fn {
+  color: #38bdf8;
+}
+
+.CodeCard-module-scss-module__xiQRCG__string {
+  color: #4ade80;
+}
+
+/* Pull Request Chip */
+.AppShell-module-scss-module__F71GCG__prChip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  padding: 5px 10px;
+  border-radius: 6px;
+  background: #27272a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 11.5px;
+  color: #a1a1aa;
+}
+
+.AppShell-module-scss-module__F71GCG__prNumber {
+  color: #e4e4e7;
+  font-weight: 600;
+}
+
+.AppShell-module-scss-module__F71GCG__prRepo {
+  color: #71717a;
+}
+
+.AppShell-module-scss-module__F71GCG__prBranch {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #d4d4d8;
+}
+
+.AppShell-module-scss-module__F71GCG__prState {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #10b981;
+  font-weight: 600;
+  font-size: 11px;
+}
+
+.AppShell-module-scss-module__F71GCG__prStateDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #10b981;
+}
+
+/* Composer Wrap */
+.AppShell-module-scss-module__F71GCG__composerWrap {
+  padding: 10px 16px 14px 16px;
+  background: #18181b;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.AppShell-module-scss-module__F71GCG__composer {
+  display: flex;
+  align-items: center;
+  background: #222226;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 10px;
+  padding: 8px 10px 8px 14px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.AppShell-module-scss-module__F71GCG__composer textarea {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #f4f4f5;
+  font-size: 13px;
+  resize: none;
+  font-family: inherit;
+  line-height: 1.4;
+}
+
+.AppShell-module-scss-module__F71GCG__composer textarea::placeholder {
+  color: #71717a;
+}
+
+.AppShell-module-scss-module__F71GCG__sendButton {
+  background: #d97757;
+  border: none;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  color: #ffffff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  margin-left: 8px;
+  transition: opacity 0.15s ease, transform 0.1s ease;
+}
+
+.AppShell-module-scss-module__F71GCG__sendButton[disabled] {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.AppShell-module-scss-module__F71GCG__composerToolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+  padding: 0 4px;
+}
+
+.AppShell-module-scss-module__F71GCG__composerToolbarLeft,
+.AppShell-module-scss-module__F71GCG__composerToolbarRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.AppShell-module-scss-module__F71GCG__composerIcons {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.AppShell-module-scss-module__F71GCG__composerIconButton {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  padding: 4px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.AppShell-module-scss-module__F71GCG__modePill,
+.AppShell-module-scss-module__F71GCG__modelPicker {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  color: #d4d4d8;
+  font-size: 11px;
+  font-weight: 500;
+  padding: 2px 7px;
+  cursor: pointer;
+}
+
+.AppShell-module-scss-module__F71GCG__effortChip {
+  font-size: 10.5px;
+  color: #a1a1aa;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+.AppShell-module-scss-module__F71GCG__usageChip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+}
+
+.AppShell-module-scss-module__F71GCG__usageRing {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid #52525b;
+  border-top-color: #d97757;
+  display: inline-block;
+}
+
+/* =====================================================================
+   3. Right Live Preview Panel
+   ===================================================================== */
+.PreviewPanel-module-scss-module__nUVQuG__panel {
+  grid-area: preview;
+  display: flex;
+  flex-direction: column;
+  background: #151517;
+  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  overflow: hidden;
+}
+
+/* Preview Top Bar / Address Bar */
+.PreviewPanel-module-scss-module__nUVQuG__bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 12px;
+  background: #1b1b1e;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__source {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__address {
+  flex: 1;
+  background: #121214;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: #71717a;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__addressPath {
+  color: #d4d4d8;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__barActions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__icon {
+  background: transparent;
+  border: none;
+  color: #71717a;
+  padding: 3px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.15s ease;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__icon:hover {
+  color: #f4f4f5;
+}
+
+/* Viewport Area */
+.PreviewPanel-module-scss-module__nUVQuG__viewport {
+  flex: 1;
+  background: #ffffff;
+  color: #18181b;
+  overflow: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* When preview is switched to dark mode */
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__viewport {
+  background: #111113 !important;
+  color: #f4f4f5 !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__app {
+  display: flex;
+  height: 100%;
+}
+
+/* Mini App Sidebar */
+.PreviewPanel-module-scss-module__nUVQuG__appSide {
+  width: 44px;
+  background: #f4f4f5;
+  border-right: 1px solid #e4e4e7;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 12px 0;
+  transition: background-color 0.25s ease, border-color 0.25s ease;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme .PreviewPanel-module-scss-module__nUVQuG__appSide,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__appSide {
+  background: #18181b !important;
+  border-right-color: #27272a !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appLogo {
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  background: #d97757;
+  margin-bottom: 16px;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appNav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: center;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appNavBottom {
+  margin-top: auto;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appNavItem {
+  color: #71717a;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  transition: all 0.15s ease;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appNavItem:hover {
+  color: #18181b;
+  background: #e4e4e7;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme .PreviewPanel-module-scss-module__nUVQuG__appNavItem:hover,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__appNavItem:hover {
+  color: #f4f4f5 !important;
+  background: #27272a !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appNavItemActive {
+  color: #18181b !important;
+  background: #e4e4e7 !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme .PreviewPanel-module-scss-module__nUVQuG__appNavItemActive,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__appNavItemActive {
+  color: #ffffff !important;
+  background: #27272a !important;
+}
+
+/* Mini App Main */
+.PreviewPanel-module-scss-module__nUVQuG__appMain {
+  flex: 1;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  overflow-y: auto;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appH1 {
+  font-size: 15px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f4f4f5;
+  transition: border-color 0.25s ease;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme .PreviewPanel-module-scss-module__nUVQuG__appRow,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__appRow {
+  border-bottom-color: #27272a !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appRowLeft {
+  display: flex;
+  flex-direction: column;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appKey {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__appDesc {
+  font-size: 11px;
+  color: #71717a;
+}
+
+/* Segmented Control */
+.PreviewPanel-module-scss-module__nUVQuG__seg {
+  display: inline-flex;
+  background: #f4f4f5;
+  padding: 2px;
+  border-radius: 6px;
+  border: 1px solid #e4e4e7;
+  transition: all 0.25s ease;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme .PreviewPanel-module-scss-module__nUVQuG__seg,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__seg {
+  background: #1e1e22 !important;
+  border-color: #2e2e32 !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__seg button {
+  background: transparent;
+  border: none;
+  font-size: 11px;
+  font-weight: 500;
+  color: #71717a;
+  padding: 3px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__seg .PreviewPanel-module-scss-module__nUVQuG__segOn {
+  background: #ffffff;
+  color: #18181b;
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme .PreviewPanel-module-scss-module__nUVQuG__seg .PreviewPanel-module-scss-module__nUVQuG__segOn,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__seg .PreviewPanel-module-scss-module__nUVQuG__segOn {
+  background: #2b2b30 !important;
+  color: #ffffff !important;
+}
+
+/* Switch Toggle */
+.PreviewPanel-module-scss-module__nUVQuG__switch {
+  width: 34px;
+  height: 20px;
+  background: #e4e4e7;
+  border: none;
+  border-radius: 12px;
+  padding: 2px;
+  cursor: pointer;
+  position: relative;
+  transition: background-color 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__viewport.dark-theme .PreviewPanel-module-scss-module__nUVQuG__switch,
+[data-preview-theme="dark"] .PreviewPanel-module-scss-module__nUVQuG__switch {
+  background: #2e2e32 !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__switch span {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  display: block;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__switch[aria-checked="true"] {
+  background: #d97757 !important;
+}
+
+.PreviewPanel-module-scss-module__nUVQuG__switch[aria-checked="true"] span {
+  transform: translateX(14px);
+}
+
+/* Compact Density Modifier */
+.PreviewPanel-module-scss-module__nUVQuG__appMain.compact-density .PreviewPanel-module-scss-module__nUVQuG__appRow {
+  padding: 4px 0;
+}
+.PreviewPanel-module-scss-module__nUVQuG__appMain.compact-density .PreviewPanel-module-scss-module__nUVQuG__appDesc {
+  display: none;
+}
+
+/* Rotating Reload Animation */
+.PreviewPanel-module-scss-module__nUVQuG__icon.is-reloading svg {
+  animation: spin-reload 0.6s linear;
+}
+
+@keyframes spin-reload {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Subtle Flash on Viewport Reload */
+.PreviewPanel-module-scss-module__nUVQuG__viewport.is-refreshing {
+  opacity: 0.35;
+  transition: opacity 0.15s ease;
+}
+
+/* Responsive Overrides */
+@media (max-width: 1200px) {
+  .claudecode-showcase-row {
+    flex-wrap: wrap;
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 960px) {
+  .claudecode-showcase-row {
+    gap: 20px;
+  }
+  .claudecode-video-card,
+  .DesktopApp-module-scss-module__Q63uga__desktopApp,
+  #desktopApp {
+    height: clamp(420px, calc(100vh - 240px), 520px);
+  }
+}
+
+@media (max-width: 820px) {
+  .AppShell-module-scss-module__F71GCG__window {
+    grid-template-columns: 0px minmax(0, 1fr);
+  }
+  .AppShell-module-scss-module__F71GCG__sidebar {
+    width: 0;
+    opacity: 0;
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .claudecode-showcase-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
+
+  .claudecode-video-card {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto;
+    height: auto;
+    aspect-ratio: 1080 / 1238;
+  }
+
+  .DesktopApp-module-scss-module__Q63uga__desktopApp,
+  #desktopApp {
+    width: 100%;
+    height: 520px;
+    flex: 1 1 auto;
+    aspect-ratio: unset;
+  }
+
+  .AppShell-module-scss-module__F71GCG__window {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: auto;
+    max-height: none;
+  }
+
+  .AppShell-module-scss-module__F71GCG__sidebar {
+    display: none;
+  }
+}

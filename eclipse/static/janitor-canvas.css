@@ -1,0 +1,2 @@
+/* Backward compatibility shim: Janitor Canvas stylesheet is in /static/bio-studio/ */
+@import "/static/bio-studio/janitor-canvas.css";

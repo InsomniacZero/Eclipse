@@ -1,0 +1,349 @@
+/* Temporary chat and per-chat settings.
+   Built on the dashboard tokens, like chat-management.css. */
+
+/* ---- Temporary chat ---- */
+#btn-temp-chat[aria-pressed="true"] {
+  color: var(--brand-primary);
+  background: rgba(217, 119, 87, 0.14);
+}
+
+#btn-temp-chat:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+#btn-temp-chat[aria-pressed="true"]:disabled {
+  opacity: 1;
+  cursor: default;
+}
+
+.temp-chat-note {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 4px 8px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  background: rgba(217, 119, 87, 0.1);
+  color: var(--text-secondary);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+
+.temp-chat-note[hidden] {
+  display: none;
+}
+
+.temp-chat-note svg {
+  flex: 0 0 auto;
+  color: var(--brand-primary);
+}
+
+/* ---- Settings scope in the Parameters panel ---- */
+.param-scope {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2px;
+  padding: 3px;
+  border-radius: 10px;
+  background: rgba(125, 125, 125, 0.12);
+}
+
+.param-scope-btn {
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease;
+}
+
+.param-scope-btn:hover {
+  color: var(--text-primary);
+}
+
+.param-scope-btn.active {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.18);
+}
+
+.param-scope-btn:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 1px;
+}
+
+.param-scope-hint {
+  margin: 6px 2px 10px;
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
+.param-chat-badge {
+  display: inline-block;
+  margin-left: 2px;
+  padding: 1px 7px;
+  border-radius: 999px;
+  background: rgba(217, 119, 87, 0.14);
+  color: var(--brand-primary);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.param-chat-badge[hidden] {
+  display: none;
+}
+
+/* ---- Reply time and estimated tokens, after the date (same hover reveal as .response-date) ---- */
+.response-stats {
+  margin-left: 0;
+  display: inline-flex;
+  gap: 8px;
+}
+
+.response-stats > span::before {
+  content: "\00b7";
+  margin-right: 8px;
+}
+
+@media (max-width: 520px) {
+  .response-stats-tokens {
+    display: none;
+  }
+}
+
+/* ---- Continue: shown on the last reply when it stopped early ---- */
+.response-continue {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(217, 119, 87, 0.5);
+  background: rgba(217, 119, 87, 0.1);
+  color: var(--brand-primary);
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 500;
+  line-height: 1.2;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease;
+}
+
+.response-continue:hover {
+  background: rgba(217, 119, 87, 0.2);
+}
+
+.response-continue:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+/* ---- Composer: slash menu and drop overlay (both sit inside the input card) ---- */
+#claude-input-card {
+  position: relative;
+}
+
+.slash-menu {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 60;
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 6px;
+  border-radius: 14px;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+}
+
+.slash-menu[hidden] {
+  display: none;
+}
+
+.slash-item {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  padding: 7px 10px;
+  border-radius: 9px;
+  cursor: pointer;
+  font-size: 13.5px;
+  line-height: 1.3;
+}
+
+.slash-item[aria-selected="true"],
+.slash-item:hover {
+  background: rgba(217, 119, 87, 0.14);
+}
+
+.slash-name {
+  flex: 0 0 76px;
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.slash-desc {
+  color: var(--text-muted);
+  min-width: 0;
+}
+
+.composer-drop {
+  position: absolute;
+  inset: 0;
+  z-index: 70;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  border: 2px dashed var(--brand-primary);
+  background: rgba(217, 119, 87, 0.12);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  color: var(--brand-primary);
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+}
+
+.composer-drop[hidden] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .slash-menu:not([hidden]) {
+    animation: fadeInMsg 0.12s ease;
+  }
+}
+
+/* ---- Reading: formulas, code wrap, table toolbar ---- */
+.chat-md-content .katex {
+  cursor: pointer;
+}
+
+.chat-code-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.chat-code-wrap-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 4px;
+  color: var(--text-secondary);
+  padding: 3px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.chat-code-wrap-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+.chat-code-wrap-btn[aria-pressed="true"] {
+  border-color: rgba(217, 119, 87, 0.6);
+  color: var(--brand-primary);
+}
+
+#chat-history.wrap-code .chat-code-pre {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  overflow-x: hidden;
+}
+
+.table-tools {
+  position: fixed;
+  z-index: 80;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 4px 3px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--border-medium);
+  background: var(--bg-surface);
+  box-shadow: var(--shadow-md);
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+.table-tools[hidden] {
+  display: none;
+}
+
+.table-tools button {
+  padding: 3px 9px;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  cursor: pointer;
+}
+
+.table-tools button:hover,
+.table-tools button:focus-visible {
+  background: rgba(217, 119, 87, 0.16);
+  color: var(--brand-primary);
+}
+
+/* ---- Suggested follow-up questions under the last reply ---- */
+.followups {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 2px;
+}
+
+.followups[hidden] {
+  display: none;
+}
+
+.followup-chip {
+  max-width: 100%;
+  padding: 7px 13px;
+  border-radius: 999px;
+  border: 1px solid var(--border-medium);
+  background: transparent;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 13.5px;
+  line-height: 1.3;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--duration-fast) ease, color var(--duration-fast) ease, border-color var(--duration-fast) ease;
+}
+
+.followup-chip:hover,
+.followup-chip:focus-visible {
+  background: rgba(217, 119, 87, 0.12);
+  border-color: rgba(217, 119, 87, 0.5);
+  color: var(--text-primary);
+}
+
+.followup-chip:focus-visible {
+  outline: 2px solid var(--border-focus);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .followups {
+    animation: fadeInMsg 0.2s ease;
+  }
+}
