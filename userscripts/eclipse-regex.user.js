@@ -861,7 +861,7 @@ function start() {
       GM_registerMenuCommand('Reload the display scripts', () => { state.fetchedAt = 0; state.toasted = ''; loadScripts(true).then(schedule); });
       GM_registerMenuCommand('Turn restyling on or off', () => { state.enabled = !state.enabled; toastOnce(state.enabled ? 'restyling on' : 'restyling off'); state.toasted = ''; schedule(); });
       GM_registerMenuCommand('Set gateway key (for a tunnel or LAN)', () => {
-        const key = window.prompt('Eclipse gateway key (leave empty to clear). Run ./nephis key to see it.', '');
+        const key = window.prompt('Eclipse gateway key (leave empty to clear). Run ./start.sh key to see it.', '');
         if (key !== null && typeof GM_setValue === 'function') { GM_setValue('gatewayKey', key.trim()); state.fetchedAt = 0; state.toasted = ''; loadScripts(true).then(schedule); }
       });
       GM_registerMenuCommand('Print debug info to the console', debugDump);

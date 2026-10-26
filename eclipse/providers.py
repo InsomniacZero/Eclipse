@@ -149,6 +149,21 @@ PROVIDERS_CONFIG = {
         "cookie_placeholder": "Paste raw cookie string containing __Secure-1PSID=... and __Secure-1PSIDTS=...",
         "auth_header": None,
     },
+    "antigravity": {
+        "id": "antigravity",
+        "name": "Google Antigravity",
+        "port": 8090,
+        "host": os.getenv("ANTIGRAVITY_HOST", PROVIDER_HOST),
+        "badge": "Google Cloud Code",
+        "color": "#4285F4",
+        "start_script": "start_antigravity.sh",
+        "stop_script": "stop_antigravity.sh",
+        "health_path": "/v1/models",
+        "cookie_type": "oauth_token_or_json",
+        "cookie_label": "Google OAuth Credentials (JSON or Refresh Token)",
+        "cookie_placeholder": "Paste Google OAuth JSON dump, refresh_token, or access_token...",
+        "auth_header": "Bearer antigravity2api",
+    },
 }
 
 # Dynamic Eclipse Catalog (Gemini Web Models)
@@ -364,6 +379,70 @@ MODELS_CATALOG = [
         'locked': False,
         'name': 'Google Veo 2.0',
         'provider': 'gemini'
+    },
+    # Google Antigravity Models (OAuth)
+    {
+        'capabilities': ['chat', 'reasoning', 'code', 'streaming', 'vision'],
+        'context': '1M tokens',
+        'description': 'Google DeepMind Gemini 4 Argon High Reasoning in Antigravity (Official Google OAuth).',
+        'id': 'agy-gemini-4-argon-high',
+        'locked': False,
+        'name': 'Gemini 4 Argon High (AGY)',
+        'provider': 'antigravity'
+    },
+    {
+        'capabilities': ['chat', 'reasoning', 'code', 'streaming', 'vision'],
+        'context': '1M tokens',
+        'description': 'Google DeepMind Gemini 4 Argon in Antigravity (Official Google OAuth).',
+        'id': 'agy-gemini-4-argon',
+        'locked': False,
+        'name': 'Gemini 4 Argon (AGY)',
+        'provider': 'antigravity'
+    },
+    {
+        'capabilities': ['chat', 'reasoning', 'code', 'streaming', 'vision'],
+        'context': '1M tokens',
+        'description': 'Google DeepMind Gemini 3.8 Flash tiered in Antigravity (Official Google OAuth).',
+        'id': 'agy-gemini-3-8-flash',
+        'locked': False,
+        'name': 'Gemini 3.8 Flash (AGY)',
+        'provider': 'antigravity'
+    },
+    {
+        'capabilities': ['chat', 'reasoning', 'code', 'streaming', 'vision'],
+        'context': '2M tokens',
+        'description': 'Google DeepMind Gemini 2.5 Pro long-context model in Antigravity.',
+        'id': 'agy-gemini-2-5-pro',
+        'locked': False,
+        'name': 'Gemini 2.5 Pro (AGY)',
+        'provider': 'antigravity'
+    },
+    {
+        'capabilities': ['chat', 'reasoning', 'code', 'streaming', 'vision'],
+        'context': '200K tokens',
+        'description': 'Flagship Claude Opus 5.5 in Antigravity with deep reasoning.',
+        'id': 'agy-claude-opus-5-5-high',
+        'locked': False,
+        'name': 'Claude Opus 5.5 (High AGY)',
+        'provider': 'antigravity'
+    },
+    {
+        'capabilities': ['chat', 'reasoning', 'code', 'streaming', 'vision'],
+        'context': '200K tokens',
+        'description': 'Frontier Claude Sonnet 5.5 in Antigravity with deep reasoning.',
+        'id': 'agy-claude-sonnet-5-5-high',
+        'locked': False,
+        'name': 'Claude Sonnet 5.5 (High AGY)',
+        'provider': 'antigravity'
+    },
+    {
+        'capabilities': ['chat', 'reasoning', 'code', 'streaming', 'vision'],
+        'context': '200K tokens',
+        'description': 'Frontier Claude Sonnet 4.6 in Antigravity with thinking capabilities.',
+        'id': 'agy-claude-sonnet-4-6',
+        'locked': False,
+        'name': 'Claude Sonnet 4.6 (AGY)',
+        'provider': 'antigravity'
     },
     # Zhipu AI GLM Models
 

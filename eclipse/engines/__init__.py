@@ -14,6 +14,7 @@ from typing import Any, AsyncIterator, Dict, List, Optional
 
 from .gemini import stream_gemini_chat
 from .glm import stream_glm_chat
+from .antigravity import stream_antigravity_chat
 
 
 async def stream_chat(
@@ -41,7 +42,13 @@ async def stream_chat(
             yield chunk
         return
 
-    # 2. Google Gemini
+    # 2. Google Antigravity (OAuth)
+    if pid in ("antigravity", "agy", "google-antigravity"):
+        async for chunk in stream_antigravity_chat(model, messages, accounts=accounts, stream=stream, **kwargs):
+            yield chunk
+        return
+
+    # 3. Google Gemini (Web)
     async for chunk in stream_gemini_chat(model, messages, accounts=accounts, stream=stream, **kwargs):
         yield chunk
 

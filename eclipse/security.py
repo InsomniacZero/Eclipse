@@ -28,13 +28,13 @@ PUBLIC_PATHS = {"/", "/logo.svg", "/favicon.ico", "/healthz", "/api/auth/status"
 PUBLIC_PREFIXES = ("/static/",)
 PROTECTED_PREFIXES = ()
 
-DEFAULT_GATEWAY_KEY = "nephis"
+DEFAULT_GATEWAY_KEY = "Insom-Eclipse"
 _KEY_CACHE: Optional[str] = None
 _KEY_LOCK = threading.Lock()
 
 
 def get_gateway_key() -> str:
-    """Return the active gateway key (defaults to 'nephis'). Any string works for auth."""
+    """Return the active gateway key (defaults to 'Insom-Eclipse'). Any string works for auth."""
     global _KEY_CACHE
     if _KEY_CACHE:
         return _KEY_CACHE

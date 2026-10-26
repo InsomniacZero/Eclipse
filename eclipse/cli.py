@@ -853,14 +853,14 @@ def cmd_login(args):
                 print("=" * 70)
                 print(f"  [+] SUCCESS! Account '{latest.get('email')}' connected and saved to SQLite vault!")
                 print(f"  [+] Total Antigravity accounts stacked: {len(accounts)}")
-                print(f"  [+] Stack another account: ./nephis login antigravity")
-                print(f"  [+] Test inference anytime: ./nephis chat 'Hello' -m gemini-3.8-flash")
+                print(f"  [+] Stack another account: ./start.sh login")
+                print(f"  [+] Test inference anytime: ./start.sh chat 'Hello' -m gemini-3.8-flash")
                 print("=" * 70)
                 return
             time.sleep(1)
         print("[-] Login timed out (180s). Please try again or paste credentials manually.")
     else:
-        print(f"[-] Browser login not currently supported for provider '{provider}'. Use './nephis accounts {provider}' to manage.")
+        print(f"[-] Browser login not currently supported for provider '{provider}'. Use './start.sh accounts {provider}' to manage.")
 
 
 def cmd_restart(args):
@@ -894,7 +894,7 @@ def cmd_autofetch(args):
             print(f"  [✓] SAPISID          : {'Present' if res.get('has_sapisid') else 'Missing'}")
             print(f"  [✓] Saved into SQLite vault successfully under 'gemini' provider!")
             print(f"\n  Test chat inference:")
-            print(f"    ./nephis chat \"Hello Gemini\" -m gemini-4-argon")
+            print(f"    ./start.sh chat \"Hello Gemini\" -m gemini-4-argon")
         else:
             print(f"  [-] {res.get('detail', 'No active session found.')}")
 

@@ -16,7 +16,7 @@
 8. [Cloud Tunneling & Native Mobile Access (`eclipse/tunnel.py`)](#8-cloud-tunneling--native-mobile-access-eclipsetunnelpy)
 9. [Web Control Center & Frontend Architecture (`eclipse/static/`)](#9-web-control-center--frontend-architecture-eclipsestatic)
 10. [JanitorAI Companion Userscript (`userscripts/`)](#10-janitorai-companion-userscript-userscripts)
-11. [Unified CLI Reference (`./nephis` / `./start.sh` / `start.bat`)](#11-unified-cli-reference-nephis--startsh--startbat)
+11. [Unified CLI Reference (`./start.sh` / `start.bat`)](#11-unified-cli-reference-startsh--startbat)
 
 ---
 
@@ -64,11 +64,13 @@ flowchart TD
     subgraph Engines["In-Process Provider Engines (eclipse/engines/)"]
         GeminiEng["Gemini Web Engine (:8084)<br/>- SNlM0e XSRF<br/>- SAPISIDHASH Auth<br/>- otAQ7b Wire Model Routing<br/>- Multi-Account Round-Robin"]
         GLMEng["Zhipu GLM Engine (:8085)<br/>- Zero-Setup Guest Tokens<br/>- 429 Auto-Healing Daemon<br/>- CoT Thinking Extraction<br/>- Session Regeneration"]
+        AGYEng["Google Antigravity Engine (:8090)<br/>- 1-Click Browser OAuth (Port 51121)<br/>- Cloud Code Language Server API<br/>- Automatic Access Token Refreshes<br/>- Gemini 4 Argon / 3.8 Flash / Claude 3.7"]
     end
 
     subgraph Upstream["Upstream Web Platforms"]
         WebGemini["Google Gemini Web<br/>(gemini.google.com/app)"]
         WebGLM["Zhipu AI Web<br/>(chatglm.cn/backend-api)"]
+        CloudCode["Google Cloud Code APIs<br/>(daily-cloudcode-pa.googleapis.com)"]
     end
 
     JAI -->|HTTPS via Tunnel| NgrokTunnel
@@ -135,7 +137,6 @@ Eclipse/
 ├── start.sh                  # Canonical Unix / macOS / Termux startup script
 ├── start.bat                 # Windows native launcher with auto-updater
 ├── start.command             # macOS double-click wrapper
-├── nephis                    # Symlink to start.sh for quick terminal access
 ├── requirements.txt          # Pure-Python runtime dependencies
 ├── README.md                 # User-facing roleplay documentation
 ├── ORACLE_VPS_SETUP_GUIDE.md # 24/7 Free cloud hosting deployment guide
@@ -211,6 +212,16 @@ sequenceDiagram
   - Completely shields JanitorAI from red error banners during high-traffic community usage.
 - **Chain-of-Thought (CoT) Extraction**: Captures `<thought>` reasoning blocks and options metadata cleanly, passing formatted output to the frontend.
 
+### Google Antigravity Engine & Official OAuth (`antigravity.py`)
+- **Official Google OAuth 2.0**: Implements native browser OAuth consent flow on port `51121` (`http://localhost:51121/oauth-callback`).
+- **Zero-Cookie Management**: Replaces fragile session cookie extraction with permanent OAuth refresh tokens that automatically generate fresh access tokens (`ya29...`) in the background.
+- **Model Support**:
+  - `gemini-4-argon` / `gemini-4-argon-high`: Google DeepMind Gemini 4 flagship reasoning.
+  - `gemini-3.8-flash`: Rapid tiered low-latency reasoning model.
+  - `gemini-2.5-pro`: Deep 2M token frontier reasoning.
+  - `claude-opus-5-5` & `claude-sonnet-5-5` / `4-6`: Cloud Code reasoning Claude variants.
+- **Automatic Fallback Routing**: If a user configured JanitorAI with `gemini-4-argon` and has no Web Gemini cookies in their vault, Eclipse seamlessly routes to their connected Google OAuth account so chat never breaks.
+
 ---
 
 ## 7. Credential Vault & Multi-Account Stacking (`eclipse/db.py`)
@@ -263,7 +274,7 @@ Located in `userscripts/eclipse-regex.user.js`:
 
 ---
 
-## 11. Unified CLI Reference (`./nephis` / `./start.sh` / `start.bat`)
+## 11. Unified CLI Reference (`./start.sh` / `start.bat`)
 
 All operations can be managed directly via the unified launcher:
 

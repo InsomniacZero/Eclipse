@@ -36,10 +36,10 @@
     {
       id: 'check',
       label: '2. check-origin',
-      command: 'eclipse check-origin --repo Nephis-opus/Eclipse',
+      command: 'eclipse check-origin --repo InsomniacZero/Eclipse',
       lines: [
         { text: '  Connecting to remote GitHub repository...', color: 't-purple', delay: 200 },
-        { text: '  Origin: https://github.com/Nephis-opus/Eclipse.git [branch: main]', color: 't-muted', delay: 150 },
+        { text: '  Origin: https://github.com/InsomniacZero/Eclipse.git [branch: main]', color: 't-muted', delay: 150 },
         { text: '', delay: 50 },
         { text: '  ✓ Contacting remote ref via git ls-remote...', color: 't-cyan', delay: 250 },
         { text: '  [LOCAL HEAD]   9c600d4 (main branch)', color: 't-white', delay: 120 },
@@ -56,7 +56,7 @@
       lines: [
         { text: '  [1/4] Checking local working directory state...', color: 't-purple', delay: 150 },
         { text: '  ✓ Preserving credentials vault and local state.', color: 't-cyan', delay: 120 },
-        { text: '  [2/4] Fetching latest refs from Nephis-opus/Eclipse...', color: 't-purple', delay: 200 },
+        { text: '  [2/4] Fetching latest refs from InsomniacZero/Eclipse...', color: 't-purple', delay: 200 },
         { text: '  [3/4] Pulling origin/main fast-forward...', color: 't-purple', delay: 250 },
         { text: '  ✓ Synchronized 14 files, 0 conflicts.', color: 't-green', delay: 120 },
         { text: '  [4/4] Generating Brave/Chromium cache-bypass signature...', color: 't-purple', delay: 150 },
@@ -176,7 +176,7 @@
         curShort.textContent = data.short_commit;
       }
       if (curHash && data.local_commit) {
-        curHash.href = `https://github.com/${data.remote_repo || 'Nephis-opus/Eclipse'}/commit/${data.local_commit}`;
+        curHash.href = `https://github.com/${data.remote_repo || 'InsomniacZero/Eclipse'}/commit/${data.local_commit}`;
       }
 
       // Update badge on dock
@@ -206,7 +206,7 @@
       if (TERMINAL_TABS[1]) {
         TERMINAL_TABS[1].lines = [
           { text: '  Connecting to remote GitHub repository...', color: 't-purple', delay: 150 },
-          { text: `  Origin: https://github.com/${data.remote_repo || 'Nephis-opus/Eclipse'}.git [${data.branch || 'main'}]`, color: 't-muted', delay: 120 },
+          { text: `  Origin: https://github.com/${data.remote_repo || 'InsomniacZero/Eclipse'}.git [${data.branch || 'main'}]`, color: 't-muted', delay: 120 },
           { text: '', delay: 50 },
           { text: '  ✓ Querying remote refs via git ls-remote...', color: 't-cyan', delay: 150 },
           { text: `  [LOCAL HEAD]   ${data.short_commit || '9c600d4'} (${data.branch || 'main'})`, color: 't-white', delay: 100 },
@@ -247,7 +247,7 @@
           <span class="skiper-commit-msg" title="${c.message}">${c.message}</span>
         </div>
         <div class="skiper-commit-meta">
-          <span>${c.author || 'Insomiku'}</span> · <span>${(c.date || '').split(' ')[0]}</span>
+          <span>${c.author || 'InsomniacZero'}</span> · <span>${(c.date || '').split(' ')[0]}</span>
         </div>
       `;
       listEl.appendChild(row);
@@ -270,7 +270,7 @@
     // Switch terminal to 'update' tab and start preliminary animation
     const liveLines = [
       { text: '  Initiating automated repository synchronization...', color: 't-purple', delay: 150 },
-      { text: '  Connecting to https://github.com/Nephis-opus/Eclipse.git...', color: 't-muted', delay: 120 },
+      { text: '  Connecting to https://github.com/InsomniacZero/Eclipse.git...', color: 't-muted', delay: 120 },
       { text: '  Executing git fetch & safe fast-forward pull...', color: 't-cyan', delay: 150 }
     ];
     playTerminalScenario(2, 'eclipse update --pull-remote --bust-cache', liveLines);

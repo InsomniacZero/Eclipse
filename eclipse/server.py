@@ -230,6 +230,13 @@ def resolve_model_provider(model_name: str) -> str:
     m = (model_name or "").lower().strip()
     if m.startswith("glm") or m.startswith("cogview") or (len(m) == 24 and all(c in "0123456789abcdef" for c in m)):
         return "glm"
+    if m.startswith("agy-") or m.startswith("antigravity") or m.startswith("claude"):
+        return "antigravity"
+    # Auto-route Gemini models to Antigravity if user logged in with Google OAuth and has no web cookies
+    if m.startswith("gemini") or "argon" in m:
+        if providers.missing_credentials("gemini") and not providers.missing_credentials("antigravity"):
+            return "antigravity"
+        return "gemini"
     return "gemini"
 
 
@@ -2082,6 +2089,85 @@ async def api_gemini_autofetch(request: Request):
         }, status_code=500)
 
 
+@app.get("/api/antigravity/oauth/url")
+async def api_antigravity_oauth_url(request: Request):
+    """Retrieve official Google Cloud Code OAuth consent URL and ensure listener is running."""
+    try:
+        from eclipse.engines import antigravity
+        antigravity.start_oauth_listener()
+        return JSONResponse({
+            "ok": True,
+            "url": antigravity.get_oauth_url(),
+            "port": antigravity.OAUTH_PORT,
+        })
+    except Exception as exc:
+        return JSONResponse({"ok": False, "message": str(exc)}, status_code=500)
+
+
+@app.post("/api/antigravity/oauth/start")
+async def api_antigravity_oauth_start(request: Request):
+    """Initiate Google OAuth flow, launching callback listener on port 51121."""
+    try:
+        from eclipse.engines import antigravity
+        started = antigravity.start_oauth_listener()
+        return JSONResponse({
+            "ok": True,
+            "started": started,
+            "url": antigravity.get_oauth_url(),
+            "port": antigravity.OAUTH_PORT,
+        })
+    except Exception as exc:
+        return JSONResponse({"ok": False, "message": str(exc)}, status_code=500)
+
+
+@app.get("/api/antigravity/oauth/status")
+async def api_antigravity_oauth_status(request: Request):
+    """Poll status of latest OAuth callback event and current accounts list."""
+    try:
+        from eclipse.engines import antigravity
+        latest = antigravity.get_latest_oauth_event()
+        return JSONResponse({
+            "ok": True,
+            "latest": latest,
+            "accounts": db.get_accounts("antigravity"),
+        })
+    except Exception as exc:
+        return JSONResponse({"ok": False, "message": str(exc)}, status_code=500)
+
+
+@app.post("/api/antigravity/autofetch")
+async def api_antigravity_autofetch(request: Request):
+    """Auto-detects active Google Antigravity IDE credentials from local machine and saves to vault."""
+    try:
+        from eclipse.engines import antigravity
+        creds = antigravity._load_local_fallback_credentials()
+        if not creds:
+            return JSONResponse({
+                "ok": False,
+                "message": "No local Antigravity credentials found in local IDE storage or ~/.gemini."
+            }, status_code=404)
+
+        saved_count = 0
+        token_str = ""
+        for c in creds:
+            raw = c.get("token") or ""
+            if raw:
+                token_str = raw
+                parsed = db.parse_credential("antigravity", raw)
+                if parsed:
+                    db.add_account("antigravity", parsed)
+                    saved_count += 1
+
+        return JSONResponse({
+            "ok": True,
+            "message": f"Successfully auto-detected {saved_count} Antigravity account(s)!",
+            "token": token_str,
+            "accounts": db.get_accounts("antigravity"),
+        })
+    except Exception as exc:
+        return JSONResponse({"ok": False, "message": str(exc)}, status_code=500)
+
+
 
 # -------------------------------------------------------------------
 # Request Logs, API Connections, Test Bench, Tools Endpoints
@@ -2584,7 +2670,7 @@ async def api_system_version():
         "remote_short": remote_short,
         "is_latest": is_latest,
         "commits_behind": commits_behind,
-        "remote_repo": "Nephis-opus/Eclipse",
+        "remote_repo": "InsomniacZero/Eclipse",
         "remote_error": remote_error,
         "recent_commits": recent_commits,
         "cache_token": int(time.time()),
@@ -2598,7 +2684,7 @@ async def api_system_update():
     logs = []
     
     logs.append(f"Initiating Eclipse core sync for {repo_dir}...")
-    logs.append("Target remote: https://github.com/Nephis-opus/Eclipse.git [main]")
+    logs.append("Target remote: https://github.com/InsomniacZero/Eclipse.git [main]")
     
     old_hash = ""
     new_hash = ""
@@ -2860,15 +2946,15 @@ def main():
         print(f"  {C_BOLD}➜{C_RESET}  {C_DIM}Network:{C_RESET}  {C_CYAN}http://{lan_ip}:{port}{C_RESET} {C_DIM}(Phone & LAN){C_RESET}", flush=True)
 
     print("", flush=True)
-    print(f"  {C_DIM}•{C_RESET}  {C_DIM}Keyword:{C_RESET}  {C_BOLD}nephis{C_RESET}", flush=True)
+    print(f"  {C_DIM}•{C_RESET}  {C_DIM}Keyword:{C_RESET}  {C_BOLD}eclipse{C_RESET}", flush=True)
     print(f"  {C_DIM}•{C_RESET}  {C_DIM}Engine:{C_RESET}   {C_BOLD}Gemini Web{C_RESET}", flush=True)
     if total_accounts > 0:
         print(f"  {C_DIM}•{C_RESET}  {C_DIM}Vault:{C_RESET}    {C_BOLD}{total_accounts}{C_RESET} account{'s' if total_accounts != 1 else ''} ready {C_DIM}(Gemini Web){C_RESET}", flush=True)
     else:
-        print(f"  {C_DIM}•{C_RESET}  {C_DIM}Vault:{C_RESET}    Ready {C_DIM}(add cookies in Dashboard or run ./nephis import){C_RESET}", flush=True)
+        print(f"  {C_DIM}•{C_RESET}  {C_DIM}Vault:{C_RESET}    Ready {C_DIM}(add cookies in Dashboard or run ./start.sh import){C_RESET}", flush=True)
 
     if not lan_ip:
-        print(f"  {C_DIM}•{C_RESET}  {C_DIM}Phone:{C_RESET}    Run {C_BOLD}./nephis --lan{C_RESET} {C_DIM}for phone & multi-device access{C_RESET}", flush=True)
+        print(f"  {C_DIM}•{C_RESET}  {C_DIM}Phone:{C_RESET}    Run {C_BOLD}./start.sh --lan{C_RESET} {C_DIM}for phone & multi-device access{C_RESET}", flush=True)
     print(f"  {C_DIM}•{C_RESET}  {C_DIM}Stop:{C_RESET}     Press {C_BOLD}Ctrl+C{C_RESET} {C_DIM}to shut down{C_RESET}\n", flush=True)
 
     try:

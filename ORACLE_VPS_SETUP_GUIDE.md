@@ -125,7 +125,7 @@ You can set this up yourself in 2 minutes!
 2. **Run the 1-Line Eclipse Cloud Installer**:
    - Once connected, copy this single command, paste it into the terminal, and press Enter:
      ```bash
-     sudo apt update -y && sudo apt install -y git python3 python3-venv && git clone https://github.com/Nephis-opus/Eclipse.git && cd Eclipse && ./start.sh
+     sudo apt update -y && sudo apt install -y git python3 python3-venv && git clone https://github.com/InsomniacZero/Eclipse.git && cd Eclipse && ./start.sh
      ```
    - Eclipse will set up Python, install dependencies, and start the gateway!
 

@@ -143,9 +143,9 @@ Whenever an issue is identified or a user corrects a behavior, log the entry bel
   - *Mistake*: Expecting that simply adding previously-committed files (like `AGENTS.md` and `DESIGN-SYS.md`) to `.gitignore` would stop Git from pushing them.
   - *Rule*: `.gitignore` only applies to *untracked* files. For any file already in Git index that needs to be kept on disk for local dev use, you MUST run `git rm --cached <files>` so Git untracks them while preserving the files locally.
 - **2026-09-23 (Entrypoint Proliferation & Canonical Launcher Invariant)**:
-  - *Mistake*: Generating extra entrypoints (`start_eclipse.sh`, `nephis.bat`) when user asked to run from anywhere.
+  - *Mistake*: Generating extra entrypoints (`start_eclipse.sh`, `eclipse_old.bat`) when user asked to run from anywhere.
   - *Rule*: Eclipse has **strictly two canonical entrypoints**:
-    1. `start.sh` (symlinked as `nephis` and `eclipse` for Linux/macOS/Termux) — uses `realpath` resolution and `$PREFIX/bin` linking so it runs anywhere.
+    1. `start.sh` (symlinked as `eclipse` for Linux/macOS/Termux) — uses `realpath` resolution and `$PREFIX/bin` linking so it runs anywhere.
     2. `start.bat` for Windows — uses `%~dp0` to resolve the root from any current working directory.
     Never create auxiliary `.bat` or `.sh` wrapper scripts in the repository root.
 - **2026-09-23 (Co-Startup Lifecycle Management for Dual Services)**:
@@ -182,8 +182,8 @@ Whenever an issue is identified or a user corrects a behavior, log the entry bel
   - *Mistake*: Calling `tarfile.open()` inside `eclipse/tunnel.py::install_ngrok()` without `import tarfile` at the module level caused `Could not auto-install ngrok: Failed to auto-install ngrok for generic-arm64: name 'tarfile' is not defined` when extracting `.tgz` binaries on Android/Linux.
   - *Rule*: Always declare standard library extraction utilities (`tarfile`, `zipfile`, `shutil`) at module level and run an AST check across new functions to eliminate runtime `NameError` exceptions.
 - **2026-09-24 (Termux Current Directory vs. Global PATH Command Execution)**:
-  - *Mistake*: When in `~/Eclipse`, typing `nephis` or `eclipse` without `./` before first boot failed with `No command found` because the current working directory `.` is not in `$PATH`.
-  - *Rule*: On initial setup, users run `./start.sh` or `bash install.sh`. `start.sh` must immediately symlink both `nephis`, `eclipse`, and `c2a` into `$PREFIX/bin` (and `~/.local/bin` on Linux/macOS) and add aliases to `~/.bashrc` so that all subsequent invocations without `./` work globally from any directory.
+  - *Mistake*: When in `~/Eclipse`, typing `eclipse` without `./` before first boot failed with `No command found` because the current working directory `.` is not in `$PATH`.
+  - *Rule*: On initial setup, users run `./start.sh` or `bash install.sh`. `start.sh` must immediately symlink both `eclipse` and `c2a` into `$PREFIX/bin` (and `~/.local/bin` on Linux/macOS) and add aliases to `~/.bashrc` so that all subsequent invocations without `./` work globally from any directory.
 - **2026-09-24 (ChatGPT Web Image Generation Block in Temporary Chats & Estuary CDN 403)**:
   - *Mistake*: Selecting image generation models like `gpt-image-2.5-flare` or `gpt-image-2.5-sunburst` returned a refusal: *"I can help create an apple image, but image generation isn't available in this temporary chat. Please switch to a regular ChatGPT chat and ask again..."*. This occurred because:
     1. `history_and_training_disabled: True` was unconditionally sent to the upstream OpenAI backend API, placing the session in "Temporary Chat" (incognito) mode where DALL-E / picture_v2 tools are strictly disabled by OpenAI.

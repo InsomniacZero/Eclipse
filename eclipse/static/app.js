@@ -9,7 +9,7 @@ const state = {
   services: [],
   limits: {},
   models: [],
-  activeCookieProvider: 'gemini',
+  activeCookieProvider: 'antigravity',
   cookiesData: {},
   selectedModel: localStorage.getItem('eclipse_selected_model') || 'gemini-3.8-flash',
   chatMessages: [],

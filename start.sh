@@ -9,16 +9,14 @@ else
 fi
 
 
-# Auto-link 'eclipse', 'nephis', and 'c2a' binaries into PATH if in Termux
+# Auto-link 'eclipse' and 'c2a' binaries into PATH if in Termux
 if [ -n "$PREFIX" ] && [ -d "$PREFIX/bin" ]; then
     ln -sf "$DIR/start.sh" "$PREFIX/bin/eclipse" 2>/dev/null || true
-    ln -sf "$DIR/start.sh" "$PREFIX/bin/nephis" 2>/dev/null || true
     ln -sf "$DIR/start.sh" "$PREFIX/bin/c2a" 2>/dev/null || true
-    chmod +x "$PREFIX/bin/eclipse" "$PREFIX/bin/nephis" "$PREFIX/bin/c2a" 2>/dev/null || true
+    chmod +x "$PREFIX/bin/eclipse" "$PREFIX/bin/c2a" 2>/dev/null || true
     if [ -f "$HOME/.bashrc" ]; then
         if ! grep -q "alias eclipse=" "$HOME/.bashrc" 2>/dev/null; then
             echo "alias eclipse=\"$DIR/start.sh\"" >> "$HOME/.bashrc" 2>/dev/null || true
-            echo "alias nephis=\"$DIR/start.sh\"" >> "$HOME/.bashrc" 2>/dev/null || true
         fi
     fi
 fi
@@ -26,9 +24,8 @@ fi
 # Auto-link into ~/.local/bin for standard Linux/macOS users
 if [ -z "$PREFIX" ] && [ -d "$HOME/.local/bin" ]; then
     ln -sf "$DIR/start.sh" "$HOME/.local/bin/eclipse" 2>/dev/null || true
-    ln -sf "$DIR/start.sh" "$HOME/.local/bin/nephis" 2>/dev/null || true
     ln -sf "$DIR/start.sh" "$HOME/.local/bin/c2a" 2>/dev/null || true
-    chmod +x "$HOME/.local/bin/eclipse" "$HOME/.local/bin/nephis" "$HOME/.local/bin/c2a" 2>/dev/null || true
+    chmod +x "$HOME/.local/bin/eclipse" "$HOME/.local/bin/c2a" 2>/dev/null || true
 fi
 
 # Phone / Termux Native ngrok setup (Android ARM64/ARM)
@@ -189,12 +186,12 @@ case "$1" in
     status|limits|accounts|login|autofetch|import|export|simulate|host|chat|model-audit|thinking|service|tunnel|claudecode|key|bench|update|upgrade|-h|--help)
         exec "$PYTHON_BIN" cli.py "$@"
         ;;
-    restart|server|nephis|"")
+    restart|server|"")
         IS_RESTART=0
         if [ "$1" = "restart" ]; then
             IS_RESTART=1
             shift
-        elif [ "$1" = "server" ] || [ "$1" = "nephis" ]; then
+        elif [ "$1" = "server" ]; then
             shift
         fi
 
