@@ -56,4 +56,6 @@ threejs-playground/
 .gravitas/
 .claude/
 skills-lock.json
-tests/*.jsonl
+# Local docs and test suites (excluded from public release)
+docs/
+tests/
