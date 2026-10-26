@@ -280,6 +280,17 @@ You don't need to touch the terminal often, but if you want quick control, run t
 
 ---
 
+## 📚 Documentation & Technical Manuals
+
+Looking for deep dives, cloud deployment, or architecture specs? Check out the guides in [`docs/`](docs/):
+
+- 📖 **[System Architecture & Pipelines](docs/ARCHITECTURE.md)**: Full breakdown of the Starlette gateway, request lifecycle, SSE streaming, and engine specifications.
+- ☁️ **[Free 24/7 Oracle Cloud VPS Guide](docs/ORACLE_VPS_SETUP.md)**: How to host Eclipse on Oracle's free tier VPS so you can roleplay 24/7 without keeping your computer on.
+- 🎨 **[Design System](docs/DESIGN_SYSTEM.md)**: Pitch-black obsidian aesthetic tokens and component rules.
+- 🤖 **[Contributor & Agent Guidelines](docs/AGENTS.md)**: Invariants, doctrines, and pre-flight checklists for developers.
+
+---
+
 ## 💖 Credits & License
 
 Built with ☕ for the roleplaying community by **InsomniacZero**.  

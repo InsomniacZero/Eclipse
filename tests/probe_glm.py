@@ -15,12 +15,13 @@ import json
 import os
 import sys
 import time
+from pathlib import Path
 from typing import Any, Dict, List
 
 import httpx
 
 GATEWAY_URL = os.getenv("ECLIPSE_GATEWAY_URL", "http://127.0.0.1:5000/v1/chat/completions")
-OUTPUT_LOG = "/home/insomniac/Desktop/Janitor/Sunless/tests/glm_probe_results.jsonl"
+OUTPUT_LOG = os.getenv("ECLIPSE_PROBE_LOG", str(Path(__file__).parent / "glm_probe_results.jsonl"))
 TOTAL_DURATION_SEC = 600  # 10 minutes straight
 INTERVAL_GAP_SEC = 30     # 30-second gaps
 

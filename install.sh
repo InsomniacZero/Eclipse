@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Eclipse Global Command Installer
-# Installs 'eclipse' and 'c2a' CLI commands globally on Termux, Linux, and macOS.
+# Installs 'eclipse' CLI command globally on Termux, Linux, and macOS.
 
 set -e
 
@@ -8,28 +8,25 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 echo "⚡ Installing Eclipse CLI globally..."
 
-chmod +x "$DIR/start.sh" "$DIR/eclipse" "$DIR/c2a" 2>/dev/null || true
+chmod +x "$DIR/start.sh" "$DIR/eclipse" 2>/dev/null || true
 
 INSTALLED=0
 
 # Termux environment
 if [ -n "$PREFIX" ] && [ -d "$PREFIX/bin" ]; then
     ln -sf "$DIR/start.sh" "$PREFIX/bin/eclipse"
-    ln -sf "$DIR/start.sh" "$PREFIX/bin/c2a"
-    chmod +x "$PREFIX/bin/eclipse" "$PREFIX/bin/c2a"
+    chmod +x "$PREFIX/bin/eclipse"
     INSTALLED=1
 fi
 
 # Standard Linux/macOS user bin
 if [ -d "$HOME/.local/bin" ]; then
     ln -sf "$DIR/start.sh" "$HOME/.local/bin/eclipse" 2>/dev/null || true
-    ln -sf "$DIR/start.sh" "$HOME/.local/bin/c2a" 2>/dev/null || true
-    chmod +x "$HOME/.local/bin/eclipse" "$HOME/.local/bin/c2a" 2>/dev/null || true
+    chmod +x "$HOME/.local/bin/eclipse" 2>/dev/null || true
     INSTALLED=1
 elif [ -w "/usr/local/bin" ]; then
     ln -sf "$DIR/start.sh" "/usr/local/bin/eclipse" 2>/dev/null || true
-    ln -sf "$DIR/start.sh" "/usr/local/bin/c2a" 2>/dev/null || true
-    chmod +x "/usr/local/bin/eclipse" "/usr/local/bin/c2a" 2>/dev/null || true
+    chmod +x "/usr/local/bin/eclipse" 2>/dev/null || true
     INSTALLED=1
 fi
 

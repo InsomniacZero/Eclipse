@@ -132,16 +132,22 @@ Eclipse/
 │   ├── security.py           # Access policies & local loopback verification
 │   └── cli.py                # Command-line interface logic
 ├── userscripts/              # Companion browser scripts for roleplay
-│   ├── eclipse-regex.user.js # JanitorAI DOM reply formatter & thought collapser
-│   └── janitorai-probe.user.js # Non-intrusive DOM inspector for JanitorAI
+│   └── eclipse-regex.user.js # JanitorAI DOM reply formatter & thought collapser
+├── docs/                     # Technical manuals & deployment guides
+│   ├── ARCHITECTURE.md       # This technical architecture manual
+│   ├── ORACLE_VPS_SETUP.md   # 24/7 Free cloud hosting deployment guide
+│   ├── DESIGN_SYSTEM.md      # UI design system & visual tokens
+│   ├── AGENTS.md             # AI developer & agent instructions
+│   └── MISTAKES.md           # Engineering lessons & post-mortem invariants
+├── tests/                    # Verification & endurance test suites
+│   ├── test_model_audit.py   # Token parser unit tests
+│   └── probe_glm.py          # GLM endurance & 429 auto-healer tests
 ├── start.sh                  # Canonical Unix / macOS / Termux startup script
 ├── start.bat                 # Windows native launcher with auto-updater
 ├── start.command             # macOS double-click wrapper
+├── install.sh                # Global CLI command installer
 ├── requirements.txt          # Pure-Python runtime dependencies
-├── README.md                 # User-facing roleplay documentation
-├── ORACLE_VPS_SETUP_GUIDE.md # 24/7 Free cloud hosting deployment guide
-├── ARCHITECTURE.md           # This technical manual
-└── MISTAKES.md               # Engineering lessons & post-mortem invariants
+└── README.md                 # User-facing roleplay documentation
 ```
 
 ---
