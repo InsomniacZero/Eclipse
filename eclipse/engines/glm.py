@@ -216,9 +216,25 @@ async def stream_glm_chat(
     chat_mode = "zero" if is_reasoning else ""
     is_networking = bool(kwargs.get("web_search")) or "search" in lower_model or "online" in lower_model
 
-    # 2. Format Prompt
+    # 2. Format Prompt & Sampling Parameters
     prompt = _format_messages_to_prompt(messages)
-    glm_messages = [{"role": "user", "content": [{"type": "text", "text": prompt + "\n\nAssistant: "}]}]
+    # Append invisible zero-width spaces (U+200B) to bust upstream prompt deduplication caching on rerolls
+    cache_buster = "\u200b" * random.randint(10, 500)
+    glm_messages = [{"role": "user", "content": [{"type": "text", "text": prompt + "\n\nAssistant: " + cache_buster}]}]
+    turn_draft_id = uuid.uuid4().hex
+
+    # Forward sampling parameters for authentic roleplay variation on rerolls
+    raw_temp = kwargs.get("temperature")
+    try:
+        temperature = float(raw_temp) if raw_temp is not None else 0.95
+    except (ValueError, TypeError):
+        temperature = 0.95
+
+    raw_top_p = kwargs.get("top_p")
+    try:
+        top_p = float(raw_top_p) if raw_top_p is not None else 0.9
+    except (ValueError, TypeError):
+        top_p = 0.9
 
     request_body = {
         "assistant_id": assistant_id,
@@ -226,16 +242,20 @@ async def stream_glm_chat(
         "project_id": "",
         "chat_type": "user_chat",
         "messages": glm_messages,
+        "temperature": temperature,
+        "top_p": top_p,
         "meta_data": {
             "channel": "",
             "chat_mode": chat_mode,
-            "draft_id": "",
+            "draft_id": turn_draft_id,
             "if_plus_model": True,
             "input_question_type": "xxxx",
             "is_networking": is_networking,
             "is_test": False,
             "platform": "pc",
             "quote_log_id": "",
+            "temperature": temperature,
+            "top_p": top_p,
             "cogview": {"rm_label_watermark": False},
         },
     }
@@ -272,6 +292,12 @@ async def stream_glm_chat(
         current_token = candidate_tokens[acc_idx % num_candidates] if candidate_tokens else None
         # Always obtain a fresh guest session on retries or initial guest requests to prevent collision
         force_fresh = (attempt > 0) or (current_token is None)
+        if attempt > 0:
+            retry_draft_id = uuid.uuid4().hex
+            request_body["meta_data"]["draft_id"] = retry_draft_id
+            request_body["meta_data"]["quote_log_id"] = ""
+            retry_zws = "\u200b" * random.randint(10, 500)
+            request_body["messages"][0]["content"][0]["text"] = prompt + "\n\nAssistant: " + retry_zws
 
         try:
             access_token = await get_valid_access_token(current_token, force_refresh=force_fresh)
