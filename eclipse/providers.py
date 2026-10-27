@@ -124,14 +124,14 @@ PROVIDERS_CONFIG = {
         "name": "GLM",
         "port": 8085,
         "host": os.getenv("GLM_HOST", PROVIDER_HOST),
-        "badge": "Zhipu AI",
+        "badge": "Z.ai (Global)",
         "color": "#4A72FF",
         "start_script": "start_glm2api.sh",
         "stop_script": "stop_glm2api.sh",
         "health_path": "/v1/models",
         "cookie_type": "token_lines",
-        "cookie_label": "GLM Refresh Token",
-        "cookie_placeholder": "Paste Zhipu refresh token (one account per line or card)...",
+        "cookie_label": "Z.ai Token (chat.z.ai)",
+        "cookie_placeholder": "Paste Z.ai token from chat.z.ai (localStorage.getItem('token'))...",
         "auth_header": "Bearer sk-glm-local",
     },
     "gemini": {
@@ -1544,7 +1544,7 @@ async def get_all_limits() -> Dict[str, Any]:
 
     if not glm_data:
         glm_data.append({
-            "email": "GLM Web (chatglm.cn)",
+            "email": "Z.ai Web (chat.z.ai)",
             "type": "FREE",
             "status": "Normal",
             "image_quota": 10,
@@ -1557,7 +1557,7 @@ async def get_all_limits() -> Dict[str, Any]:
         })
 
     limits["glm"] = {
-        "title": "GLM / Zhipu AI Account Quotas",
+        "title": "Z.ai / GLM Global Quotas",
         "accounts_count": len(glm_data),
         "accounts": glm_data,
     }
@@ -1571,7 +1571,7 @@ def get_stored_cookies() -> Dict[str, Any]:
 
     label_map = {
         "gemini": ("cookie_string", "Google __Secure-1PSID Cookie"),
-        "glm": ("token_lines", "GLM Refresh Token"),
+        "glm": ("token_lines", "Z.ai Bearer Token"),
     }
 
     for p, (ctype, clabel) in label_map.items():

@@ -1243,7 +1243,7 @@ function initClaudeSettings() {
   if (connectorsGrid && connectorsGrid.children.length === 0) {
     const providers = [
       { id: 'gemini', name: 'Google Gemini', meta: 'Gemini 4 Argon, 3.1 Pro, 3.8 Flash, Imagen & Veo', icon: '/static/icons/gemini.svg' },
-      { id: 'glm', name: 'Zhipu AI (GLM)', meta: 'GLM 5.3, Thinking, Web Search, Flash, CogView 4', icon: '/static/icons/glm.svg' },
+      { id: 'glm', name: 'Z.ai Global (GLM)', meta: 'GLM 5.3, Thinking, Flash, GLM 5.2, CogView 4', icon: '/static/icons/glm.svg' },
     ];
 
     connectorsGrid.innerHTML = providers.map(p => `
@@ -2261,12 +2261,12 @@ const TOKEN_GUIDES = {
     ]
   },
   glm: {
-    title: 'How to Extract GLM (ChatGLM) Token',
-    script: "(() => { let t = localStorage.getItem('chatglm_token') || localStorage.getItem('token'); if (!t) { for (let i = 0; i < localStorage.length; i++) { const v = localStorage.getItem(localStorage.key(i)); if (v && (v.includes('eyJ') || v.includes('Bearer'))) { try { const j = JSON.parse(v); t = j.token || j.access_token || v; } catch(_) { t = v; } break; } } } const tok = (t || '').replace(/^[\"']|[\"']$/g, '').replace(/^Bearer\\s+/i, '').trim(); if (tok) { if (typeof copy === 'function') copy(tok); else if (navigator.clipboard) navigator.clipboard.writeText(tok); console.log('%c[Eclipse] GLM token copied to clipboard!', 'color:#10b981;font-weight:bold;font-size:13px;'); alert('✓ GLM token copied to clipboard! Paste it into Eclipse.'); } else { alert('GLM token not found. Please log in on chatglm.cn first.'); } })()",
+    title: 'How to Extract Z.ai (GLM Global) Token',
+    script: "(() => { let t = localStorage.getItem('token') || localStorage.getItem('chatglm_refresh_token') || localStorage.getItem('refresh_token'); if (!t) { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); const v = localStorage.getItem(k); if (v && (v.includes('eyJ') || v.includes('Bearer'))) { try { const j = JSON.parse(v); t = j.token || j.access_token || j.chatglm_refresh_token || j.refresh_token || v; } catch(_) { t = v; } if (t) break; } } } const tok = (t || '').replace(/^[\"']|[\"']$/g, '').replace(/^Bearer\\s+/i, '').trim(); if (tok) { if (typeof copy === 'function') copy(tok); else if (navigator.clipboard) navigator.clipboard.writeText(tok); console.log('%c[Eclipse] Z.ai token copied to clipboard!', 'color:#10b981;font-weight:bold;font-size:13px;'); alert('✓ Z.ai token copied to clipboard! Paste it into Eclipse.'); } else { alert('Z.ai token not found. Please log in on chat.z.ai first (1-click Google or Email).'); } })()",
     steps: [
       {
         num: '1',
-        text: 'Log into <a href="https://chatglm.cn" target="_blank" rel="noopener" class="token-guide-link">chatglm.cn</a> in your browser.'
+        text: 'Log into <a href="https://chat.z.ai" target="_blank" rel="noopener" class="token-guide-link">chat.z.ai</a> in your browser (1-click Google or Email).'
       },
       {
         num: '2',
@@ -2450,9 +2450,9 @@ async function loadCookiesTab() {
       placeholder: '__Secure-1PSID=...; __Secure-1PSIDTS=...',
     },
     glm: {
-      title: 'GLM Token Stacker',
-      desc: 'Paste Zhipu AI refresh tokens or localStorage dump (one per line). Stored securely in Eclipse Unified Vault (SQLite).',
-      placeholder: 'Paste GLM token or localStorage dump...',
+      title: 'Z.ai (GLM Global) Token Stacker',
+      desc: 'Paste Z.ai (chat.z.ai) token or localStorage JSON (one per line). Stored securely in Eclipse Unified Vault (SQLite).',
+      placeholder: 'Paste Z.ai token from chat.z.ai (localStorage.getItem("token"))...',
     },
     deepseek: {
       title: 'DeepSeek Token Stacker',

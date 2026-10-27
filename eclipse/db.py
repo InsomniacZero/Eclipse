@@ -740,18 +740,50 @@ def parse_credential(provider: str, raw: str) -> Optional[Dict[str, Any]]:
             "metadata": json.dumps(metadata),
         }
 
-    # 6. GLM
+    # 6. GLM (Z.ai Global)
     elif provider == "glm":
-        token = raw.strip()
-        identifier = token[:30]
+        raw_str = raw.strip()
+        token = raw_str
+        metadata = {}
+        if raw_str.startswith("{"):
+            try:
+                d = json.loads(raw_str)
+                if isinstance(d, dict):
+                    token = (
+                        d.get("token")
+                        or d.get("access_token")
+                        or d.get("chatglm_refresh_token")
+                        or d.get("refresh_token")
+                        or d.get("chatglm_token")
+                        or raw_str
+                    )
+                    metadata = d
+            except Exception:
+                pass
+        token = re.sub(r"^Bearer\s+", "", str(token), flags=re.IGNORECASE).strip("\"' \t\r\n")
+        identifier = token[:32] if token else "zai_account"
+
+        # Try extracting email or name from JWT payload if available
+        email_label = None
+        try:
+            parts = token.split(".")
+            if len(parts) >= 2:
+                import base64
+                padded = parts[1] + "=" * ((4 - len(parts[1]) % 4) % 4)
+                jwt_meta = json.loads(base64.urlsafe_b64decode(padded.encode("ascii")).decode("utf-8"))
+                email_label = jwt_meta.get("email") or jwt_meta.get("name")
+        except Exception:
+            pass
+
+        account_name = f"Z.ai ({email_label})" if email_label else f"Z.ai ({identifier[:8]}...)"
         return {
             "provider": "glm",
             "identifier": identifier,
-            "name": f"GLM ({token[:8]}...)",
+            "name": account_name,
             "token": token,
             "plan": "free",
             "status": "active",
-            "metadata": json.dumps({}),
+            "metadata": json.dumps(metadata),
         }
 
     # 7. DeepSeek

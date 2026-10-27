@@ -228,7 +228,7 @@ except Exception:
 def resolve_model_provider(model_name: str) -> str:
     """Route models to their respective native providers in Eclipse."""
     m = (model_name or "").lower().strip()
-    if m.startswith("glm") or m.startswith("cogview") or (len(m) == 24 and all(c in "0123456789abcdef" for c in m)):
+    if m.startswith("glm") or m.startswith("cogview") or m.startswith("x-preview") or m.startswith("zai") or m.startswith("z.ai") or (len(m) == 24 and all(c in "0123456789abcdef" for c in m)):
         return "glm"
     if m.startswith("agy-") or m.startswith("antigravity") or m.startswith("claude"):
         return "antigravity"
