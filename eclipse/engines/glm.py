@@ -1,21 +1,22 @@
 #!/usr/bin/env python3
 """
-Eclipse Native Z.ai / GLM Global Engine
-========================================
-Authentic, zero-legacy reverse-proxy driver for Z.ai (chat.z.ai) Global models.
-Provides full international access to GLM-5.3, GLM-5.2, and GLM-Flash models.
-
-Key Features:
-- Pure global Z.ai routing (chat.z.ai) — accessible worldwide with 1-click Google/Email login
-- Zero Chinese phone (+86) or WeChat requirement
-- Automatic free guest session acquisition via /api/v1/auths/
-- Multi-account pooling & failover from Eclipse SQLite vault
-- Monotonic streaming with reasoning/thinking traces (reasoning_content)
+Eclipse Native GLM (Zhipu AI) Authentic Webscraper Engine
+==========================================================
+Authentic, zero-legacy reverse-proxy driver for Zhipu AI GLM models (GLM-4, GLM-5.3, GLM-Zero).
+Direct webscraper routing with:
+- Zero guardrail interference / minimal content filtering for authentic roleplay
+- Automatic Free Guest Token Generation on-the-fly (zero config, works worldwide)
+- Self-healing on HTTP 429 / 10061 with immediate dynamic token renewal
+- Background conversation session cleanup (prevents lingering server busy locks)
+- User Refresh Token authentication from Eclipse SQLite vault
+- Monotonic delta streaming (eliminates token stuttering, chunk duplication)
+- Deep thinking / reasoning traces (reasoning_content)
 """
 
 import asyncio
-import base64
+import hashlib
 import json
+import logging
 import os
 import random
 import re
@@ -30,106 +31,119 @@ try:
 except Exception:
     db = None
 
-ZAI_BASE_URL = os.getenv("ZAI_BASE_URL", "https://chat.z.ai")
-ZAI_API_URL = f"{ZAI_BASE_URL}/api/v2/chat/completions"
-ZAI_AUTHS_URL = f"{ZAI_BASE_URL}/api/v1/auths/"
+logger = logging.getLogger("eclipse.engines.glm")
+
+GLM_BASE_URL = os.getenv("GLM_BASE_URL", "https://chatglm.cn/chatglm")
+DEFAULT_ASSISTANT_ID = os.getenv("GLM_ASSISTANT_ID", "65940acff94777010aa6b796")
+SIGN_SECRET = "8a1317a7468aa3ad86e997d08f3f31cb"
+ASSISTANT_ID_PATTERN = re.compile(r"^[0-9a-f]{24}$", re.IGNORECASE)
 
 # In-memory token cache: { "cache_key": { "token": str, "expires_at": float } }
 _TOKEN_CACHE: Dict[str, Dict[str, Any]] = {}
 _TOKEN_LOCK = asyncio.Lock()
 
 
-def _inspect_jwt(jwt_str: str) -> Dict[str, Any]:
-    """Inspect unverified JWT payload for type and expiration without cryptographic overhead."""
-    if not jwt_str or not isinstance(jwt_str, str):
-        return {}
-    try:
-        parts = jwt_str.strip().split(".")
-        if len(parts) >= 2:
-            padded = parts[1] + "=" * ((4 - len(parts[1]) % 4) % 4)
-            payload_bytes = base64.urlsafe_b64decode(padded.encode("ascii"))
-            return json.loads(payload_bytes.decode("utf-8"))
-    except Exception:
-        pass
-    return {}
+def build_sign() -> Tuple[str, str, str]:
+    """Compute Zhipu dynamic anti-replay signature."""
+    now = str(int(time.time() * 1000))
+    digits = [int(char) for char in now]
+    checksum = (sum(digits) - digits[-2]) % 10
+    timestamp = now[:-2] + str(checksum) + now[-1]
+    nonce = uuid.uuid4().hex
+    sign = hashlib.md5(f"{timestamp}-{nonce}-{SIGN_SECRET}".encode("utf-8")).hexdigest()
+    return timestamp, nonce, sign
 
 
-def _is_guest_jwt(jwt_str: str) -> bool:
-    """Check if the given JWT token belongs to an anonymous guest session."""
-    meta = _inspect_jwt(jwt_str)
-    if not meta:
-        return True
-    email = str(meta.get("email", "")).lower()
-    role = str(meta.get("role", "")).lower()
-    return "guest" in email or role == "guest"
+def _format_messages_to_prompt(messages: List[Dict[str, Any]]) -> str:
+    """Flatten conversation history to a clean transcript prompt for GLM Web."""
+    transcript = []
+    for m in messages:
+        role = str(m.get("role", "user")).lower().strip()
+        content = m.get("content", "")
+        if isinstance(content, list):
+            text_parts = []
+            for item in content:
+                if isinstance(item, dict) and item.get("type") == "text":
+                    text_parts.append(item.get("text", ""))
+                elif isinstance(item, str):
+                    text_parts.append(item)
+            content = " ".join(text_parts)
+        content_str = str(content).strip()
+        if not content_str:
+            continue
+
+        if role == "system":
+            transcript.append(f"System: {content_str}")
+        elif role == "assistant":
+            transcript.append(f"Assistant: {content_str}")
+        else:
+            transcript.append(f"User: {content_str}")
+
+    return "\n\n".join(transcript).strip()
 
 
-async def get_valid_access_token(raw_token: Optional[str] = None, force_refresh: bool = False) -> str:
+async def get_valid_access_token(raw_refresh_token: Optional[str] = None, force_refresh: bool = False) -> str:
     """
-    Acquire valid access token for chat.z.ai:
-    1. If user provided a token in vault, validate and return.
-    2. Otherwise, request a free session token from chat.z.ai/api/v1/auths/.
+    Acquire valid access token:
+    1. If user provided a refresh token in vault, refresh user session.
+    2. Otherwise, automatically request a fresh anonymous Guest Token.
+    Works anywhere, across all devices, seamlessly.
     """
-    raw_tok = (raw_token or "").strip()
-
-    # Handle JSON string from localStorage dump or credential objects
-    if raw_tok.startswith("{"):
-        try:
-            d = json.loads(raw_tok)
-            if isinstance(d, dict):
-                raw_tok = (
-                    d.get("token")
-                    or d.get("access_token")
-                    or d.get("chatglm_refresh_token")
-                    or d.get("refresh_token")
-                    or raw_tok
-                ).strip()
-        except Exception:
-            pass
-
-    # Clean Bearer prefix or surrounding quotes
-    raw_tok = re.sub(r"^Bearer\s+", "", raw_tok, flags=re.IGNORECASE).strip("\"' \t\r\n")
-    cache_key = raw_tok if raw_tok else "__guest__"
-    now = time.time()
-
     async with _TOKEN_LOCK:
+        now = time.time()
+        cache_key = raw_refresh_token.strip() if raw_refresh_token and raw_refresh_token.strip() else "__guest__"
         cached = _TOKEN_CACHE.get(cache_key)
+
         if not force_refresh and cached and cached.get("expires_at", 0) > now + 60:
             return cached["token"]
 
-        # If user supplied a valid, unexpired token directly, use it!
-        if cache_key != "__guest__":
-            jwt_meta = _inspect_jwt(raw_tok)
-            exp = jwt_meta.get("exp", 0)
-            # If exp is present and still valid, or if token has no exp (session token), cache it
-            expires_at = exp if exp > now else now + 86400 * 7
-            _TOKEN_CACHE[cache_key] = {
-                "token": raw_tok,
-                "expires_at": expires_at,
-            }
-            return raw_tok
-
-        # Anonymous Guest Session Generation from chat.z.ai
-        headers = {
+        t, n, s = build_sign()
+        base_headers = {
             "Accept": "application/json, text/plain, */*",
-            "Origin": ZAI_BASE_URL,
-            "Referer": f"{ZAI_BASE_URL}/",
+            "App-Name": "chatglm",
+            "Origin": "https://chatglm.cn",
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
                 "Chrome/131.0.0.0 Safari/537.36"
             ),
+            "X-App-Fr": "default",
+            "X-App-Platform": "pc",
+            "X-App-Version": "0.0.1",
+            "X-Device-Id": uuid.uuid4().hex,
+            "X-Nonce": n,
+            "X-Request-Id": uuid.uuid4().hex,
+            "X-Sign": s,
+            "X-Timestamp": t,
         }
 
-        async with httpx.AsyncClient(timeout=20.0, follow_redirects=True) as client:
-            resp = await client.get(ZAI_AUTHS_URL, headers=headers)
-            if resp.status_code != 200:
-                raise RuntimeError(f"Z.ai Guest session failed (HTTP {resp.status_code}): {resp.text}")
+        async with httpx.AsyncClient(timeout=20.0) as client:
+            if cache_key != "__guest__":
+                # Refresh user token
+                refresh_url = f"{GLM_BASE_URL}/user-api/user/refresh"
+                headers = {**base_headers, "Authorization": f"Bearer {raw_refresh_token}"}
+                try:
+                    resp = await client.post(refresh_url, headers=headers, json={})
+                    data = resp.json()
+                    res = data.get("result", {})
+                    acc_token = res.get("access_token")
+                    if acc_token:
+                        _TOKEN_CACHE[cache_key] = {
+                            "token": acc_token,
+                            "expires_at": now + 3500,
+                        }
+                        return acc_token
+                except Exception:
+                    pass  # Fall back to guest token if refresh token failed
 
+            # Guest Mode Token Generation
+            guest_url = f"{GLM_BASE_URL}/user-api/guest/access"
+            resp = await client.post(guest_url, headers=base_headers, json={})
             data = resp.json()
-            acc_token = data.get("token")
+            res = data.get("result", {})
+            acc_token = res.get("access_token")
             if not acc_token:
-                raise RuntimeError(f"Z.ai Guest authentication returned no token: {data}")
+                raise RuntimeError(f"GLM Guest authentication failed: {data}")
 
             _TOKEN_CACHE["__guest__"] = {
                 "token": acc_token,
@@ -138,14 +152,36 @@ async def get_valid_access_token(raw_token: Optional[str] = None, force_refresh:
             return acc_token
 
 
-def _resolve_model_name(requested_model: str) -> str:
-    """Map user/OpenAI model name to the corresponding model identifier on chat.z.ai."""
-    low = (requested_model or "").lower()
-    if "5.2" in low:
-        return "glm-5.2"
-    elif "flash" in low or "preview" in low or "x-preview" in low:
-        return "x-preview-l"
-    return "glm-5.3"
+async def _delete_conversation(conversation_id: str, assistant_id: str, access_token: str) -> None:
+    """Clean up server session to release the busy lock immediately."""
+    if not conversation_id or not access_token:
+        return
+    try:
+        t, n, s = build_sign()
+        headers = {
+            "Accept": "application/json, text/plain, */*",
+            "App-Name": "chatglm",
+            "Origin": "https://chatglm.cn",
+            "Referer": "https://chatglm.cn/main/alltoolsdetail",
+            "User-Agent": (
+                "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
+            ),
+            "Authorization": f"Bearer {access_token}",
+            "X-Device-Id": uuid.uuid4().hex,
+            "X-Nonce": n,
+            "X-Request-Id": uuid.uuid4().hex,
+            "X-Sign": s,
+            "X-Timestamp": t,
+        }
+        async with httpx.AsyncClient(timeout=8.0) as client:
+            await client.post(
+                f"{GLM_BASE_URL}/backend-api/assistant/conversation/delete",
+                headers=headers,
+                json={"assistant_id": assistant_id, "conversation_id": conversation_id},
+            )
+    except Exception:
+        pass
 
 
 async def stream_glm_chat(
@@ -157,47 +193,54 @@ async def stream_glm_chat(
     **kwargs,
 ) -> AsyncIterator[Dict[str, Any]]:
     """
-    Stream chat completion directly from Z.ai Global (chat.z.ai) with clean monotonic deltas,
-    multi-account pool rotation, reasoning traces, and error auto-healing.
-    Yields standard OpenAI-compatible chunks.
+    Stream chat completion directly from Zhipu GLM Web with clean monotonic deltas
+    and automatic self-healing retry for HTTP 429 busy errors.
+    Yields OpenAI-compatible chunks.
     """
-    chat_id = f"chatcmpl-zai-{uuid.uuid4().hex[:12]}"
+    chat_id = f"chatcmpl-glm-{uuid.uuid4().hex[:12]}"
     created_ts = int(time.time())
 
-    # 1. Model & Features Resolution
+    # 1. Assistant & Chat Mode Resolution
     lower_model = (model or "").lower()
-    clean_model = _resolve_model_name(model)
+    if ASSISTANT_ID_PATTERN.fullmatch(model):
+        assistant_id = model
+    else:
+        assistant_id = DEFAULT_ASSISTANT_ID
+
     is_reasoning = (
         "zero" in lower_model
         or "think" in lower_model
         or "r1" in lower_model
         or kwargs.get("reasoning_effort") is not None
     )
+    chat_mode = "zero" if is_reasoning else ""
+    is_networking = bool(kwargs.get("web_search")) or "search" in lower_model or "online" in lower_model
 
-    # 2. Format Messages
-    formatted_messages = []
-    for m in messages:
-        role = str(m.get("role", "user")).lower().strip()
-        content = m.get("content", "")
-        if isinstance(content, list):
-            text_parts = [
-                item.get("text", "") if isinstance(item, dict) else str(item)
-                for item in content
-            ]
-            content = " ".join(text_parts)
-        formatted_messages.append({"role": role, "content": str(content)})
+    # 2. Format Prompt
+    prompt = _format_messages_to_prompt(messages)
+    glm_messages = [{"role": "user", "content": [{"type": "text", "text": prompt + "\n\nAssistant: "}]}]
 
     request_body = {
-        "model": clean_model,
-        "messages": formatted_messages,
-        "stream": True,
-        "params": {},
-        "features": {
-            "enable_thinking": is_reasoning,
+        "assistant_id": assistant_id,
+        "conversation_id": "",
+        "project_id": "",
+        "chat_type": "user_chat",
+        "messages": glm_messages,
+        "meta_data": {
+            "channel": "",
+            "chat_mode": chat_mode,
+            "draft_id": "",
+            "if_plus_model": True,
+            "input_question_type": "xxxx",
+            "is_networking": is_networking,
+            "is_test": False,
+            "platform": "pc",
+            "quote_log_id": "",
+            "cogview": {"rm_label_watermark": False},
         },
     }
 
-    # 3. Account Pool & Candidates Resolution
+    # Resolve token candidates
     candidate_tokens: List[str] = []
     if raw_token and str(raw_token).strip():
         candidate_tokens.append(str(raw_token).strip())
@@ -214,69 +257,78 @@ async def stream_glm_chat(
             if tok and str(tok).strip() and str(tok).strip() not in candidate_tokens:
                 candidate_tokens.append(str(tok).strip())
 
-    if not candidate_tokens:
-        candidate_tokens = ["__guest__"]
-
     num_candidates = len(candidate_tokens)
-    has_authenticated_accounts = any(
-        t != "__guest__" and not _is_guest_jwt(t)
-        for t in candidate_tokens
-    )
-    MAX_RETRIES = max(4, num_candidates * 2)
-    acc_idx = 0
+    stream_url = f"{GLM_BASE_URL}/backend-api/assistant/stream"
+    accumulated_text: Dict[str, str] = {}
+    accumulated_think: Dict[str, str] = {}
     started_streaming = False
+    conversation_id = ""
+    active_access_token = ""
+
+    MAX_RETRIES = max(4, num_candidates * 2) if num_candidates > 0 else 4
+    acc_idx = 0
 
     for attempt in range(MAX_RETRIES):
-        current_token = candidate_tokens[acc_idx % num_candidates]
-        force_fresh_token = (attempt > 0)
+        current_token = candidate_tokens[acc_idx % num_candidates] if candidate_tokens else None
+        # Always obtain a fresh guest session on retries or initial guest requests to prevent collision
+        force_fresh = (attempt > 0) or (current_token is None)
+
         try:
-            access_token = await get_valid_access_token(current_token, force_refresh=force_fresh_token)
+            access_token = await get_valid_access_token(current_token, force_refresh=force_fresh)
+            active_access_token = access_token
         except Exception as e:
             if attempt == MAX_RETRIES - 1:
-                raise RuntimeError(f"Z.ai auth error: {e}")
+                raise RuntimeError(f"GLM Auth Error: {str(e)}")
             acc_idx += 1
             await asyncio.sleep(0.5)
             continue
 
+        t, n, s = build_sign()
         stream_headers = {
             "Accept": "text/event-stream",
-            "Accept-Language": "en-US",
-            "Authorization": f"Bearer {access_token}",
-            "Content-Type": "application/json",
-            "Origin": ZAI_BASE_URL,
-            "Referer": f"{ZAI_BASE_URL}/",
+            "Accept-Encoding": "identity",  # Keep uncompressed for clean incremental SSE
+            "App-Name": "chatglm",
+            "Origin": "https://chatglm.cn",
             "User-Agent": (
                 "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
                 "AppleWebKit/537.36 (KHTML, like Gecko) "
                 "Chrome/131.0.0.0 Safari/537.36"
             ),
-            "X-FE-Version": "prod-fe-1.1.118",
+            "X-App-Fr": "browser_extension",
+            "X-App-Platform": "pc",
+            "X-App-Version": "0.0.1",
+            "Authorization": f"Bearer {access_token}",
+            "X-Device-Id": uuid.uuid4().hex,
+            "X-Nonce": n,
+            "X-Request-Id": uuid.uuid4().hex,
+            "X-Sign": s,
+            "X-Timestamp": t,
         }
 
         try:
             async with httpx.AsyncClient(timeout=90.0) as client:
-                async with client.stream("POST", ZAI_API_URL, headers=stream_headers, json=request_body) as response:
-                    if response.status_code in (401, 403):
-                        err_bytes = await response.aread()
-                        err_text = err_bytes.decode("utf-8", errors="ignore")
-                        if has_authenticated_accounts and attempt < MAX_RETRIES - 1:
-                            acc_idx += 1
-                            continue
-                        raise RuntimeError(f"Z.ai authorization failed (HTTP {response.status_code}): {err_text[:200]}")
-
+                async with client.stream("POST", stream_url, headers=stream_headers, json=request_body) as response:
+                    # Catch 429 busy error ("请等待其他对话生成完毕")
                     if response.status_code == 429:
-                        if num_candidates > 1 and attempt < MAX_RETRIES - 1:
+                        if attempt < MAX_RETRIES - 1:
+                            async with _TOKEN_LOCK:
+                                _TOKEN_CACHE.pop("__guest__", None)
+                            acc_idx += 1
+                            await asyncio.sleep(0.5 * (attempt + 1))
+                            continue
+                        raise RuntimeError("GLM Server Busy (429): Other conversation generating.")
+
+                    if response.status_code in (401, 403):
+                        if attempt < MAX_RETRIES - 1:
                             acc_idx += 1
                             continue
-                        if attempt < MAX_RETRIES - 1:
-                            await asyncio.sleep(1.0 * (attempt + 1))
-                            continue
-                        raise RuntimeError("Z.ai upstream rate limit exceeded (HTTP 429)")
+                        raise RuntimeError(f"GLM Authorization Error (HTTP {response.status_code})")
 
                     if response.status_code != 200:
                         err_msg = await response.aread()
-                        raise RuntimeError(f"Z.ai upstream HTTP {response.status_code}: {err_msg.decode('utf-8', errors='ignore')[:200]}")
+                        raise RuntimeError(f"GLM Upstream HTTP {response.status_code}: {err_msg.decode('utf-8', errors='ignore')[:200]}")
 
+                    hit_busy_event = False
                     async for line in response.aiter_lines():
                         trimmed = line.strip()
                         if not trimmed.startswith("data:"):
@@ -290,32 +342,13 @@ async def stream_glm_chat(
                         except Exception:
                             continue
 
-                        # Check for inline error objects
-                        err_obj = None
-                        if isinstance(data, dict):
-                            if data.get("error"):
-                                err_obj = data["error"]
-                            elif isinstance(data.get("data"), dict) and data["data"].get("error"):
-                                err_obj = data["data"]["error"]
-                            elif isinstance(data.get("data"), dict) and isinstance(data["data"].get("data"), dict) and data["data"]["data"].get("error"):
-                                err_obj = data["data"]["data"]["error"]
+                        # Check for inline busy error status 10061
+                        if data.get("status") == 10061 or "请等待其他对话生成完毕" in str(data.get("message", "")):
+                            hit_busy_event = True
+                            break
 
-                        if err_obj:
-                            err_str = json.dumps(err_obj).lower() if isinstance(err_obj, dict) else str(err_obj).lower()
-                            err_detail = (
-                                err_obj.get("detail")
-                                or err_obj.get("message")
-                                or err_obj.get("code")
-                                or str(err_obj)
-                            ) if isinstance(err_obj, dict) else str(err_obj)
-
-                            # If we have multiple accounts, rotate to the next candidate
-                            if num_candidates > 1 and attempt < MAX_RETRIES - 1:
-                                acc_idx += 1
-                                break
-
-                            # Clean exception to trigger upstream router Auto-Healer without leaking error text to user
-                            raise RuntimeError(f"Z.ai upstream error: {err_detail}")
+                        if not conversation_id and data.get("conversation_id"):
+                            conversation_id = str(data["conversation_id"])
 
                         # Emit first role chunk upon receiving initial valid frame
                         if not started_streaming:
@@ -328,93 +361,89 @@ async def stream_glm_chat(
                                 "choices": [{"index": 0, "delta": {"role": "assistant"}, "finish_reason": None}],
                             }
 
-                        # Standard OpenAI chunks format
-                        choices = data.get("choices")
-                        if choices and isinstance(choices, list) and choices[0].get("delta"):
-                            delta = choices[0]["delta"]
-                            yield {
-                                "id": chat_id,
-                                "object": "chat.completion.chunk",
-                                "created": created_ts,
-                                "model": model,
-                                "choices": [{"index": 0, "delta": delta, "finish_reason": choices[0].get("finish_reason")}],
-                            }
-                            continue
+                        parts = data.get("parts", [])
+                        for p in parts:
+                            lid = p.get("logic_id", "default")
+                            p_status = p.get("status")
 
-                        # Z.ai Chat Completion Format
-                        if data.get("type") == "chat:completion":
-                            inner = data.get("data")
-                            if isinstance(inner, dict):
-                                delta_text = inner.get("delta_content")
-                                phase = inner.get("phase", "answer")
-                                if not delta_text and "content" in inner and isinstance(inner["content"], str):
-                                    delta_text = inner["content"]
+                            for c in p.get("content", []):
+                                c_type = c.get("type")
+                                c_text = c.get("text", "")
+                                if not c_text:
+                                    continue
 
-                                if delta_text:
-                                    if phase == "thinking":
+                                # Text Content Processing (Monotonic Clean Slicing)
+                                if c_type == "text":
+                                    if p_status == "init":
+                                        accumulated_text[lid] = accumulated_text.get(lid, "") + c_text
                                         yield {
                                             "id": chat_id,
                                             "object": "chat.completion.chunk",
                                             "created": created_ts,
                                             "model": model,
-                                            "choices": [{
-                                                "index": 0,
-                                                "delta": {"reasoning_content": delta_text},
-                                                "finish_reason": None,
-                                            }],
+                                            "choices": [{"index": 0, "delta": {"content": c_text}, "finish_reason": None}],
                                         }
-                                    else:
+                                    elif p_status == "finish":
+                                        cur = accumulated_text.get(lid, "")
+                                        if len(c_text) > len(cur):
+                                            delta = c_text[len(cur):]
+                                            accumulated_text[lid] = c_text
+                                            yield {
+                                                "id": chat_id,
+                                                "object": "chat.completion.chunk",
+                                                "created": created_ts,
+                                                "model": model,
+                                                "choices": [{"index": 0, "delta": {"content": delta}, "finish_reason": None}],
+                                            }
+
+                                # Reasoning / Thinking Processing
+                                elif c_type == "think":
+                                    if p_status == "init":
+                                        accumulated_think[lid] = accumulated_think.get(lid, "") + c_text
                                         yield {
                                             "id": chat_id,
                                             "object": "chat.completion.chunk",
                                             "created": created_ts,
                                             "model": model,
-                                            "choices": [{
-                                                "index": 0,
-                                                "delta": {"content": delta_text},
-                                                "finish_reason": None,
-                                            }],
+                                            "choices": [{"index": 0, "delta": {"reasoning_content": c_text}, "finish_reason": None}],
                                         }
+                                    elif p_status == "finish":
+                                        cur = accumulated_think.get(lid, "")
+                                        if len(c_text) > len(cur):
+                                            delta = c_text[len(cur):]
+                                            accumulated_think[lid] = c_text
+                                            yield {
+                                                "id": chat_id,
+                                                "object": "chat.completion.chunk",
+                                                "created": created_ts,
+                                                "model": model,
+                                                "choices": [{"index": 0, "delta": {"reasoning_content": delta}, "finish_reason": None}],
+                                            }
+
+                    if hit_busy_event and attempt < MAX_RETRIES - 1:
+                        async with _TOKEN_LOCK:
+                            _TOKEN_CACHE.pop("__guest__", None)
+                        acc_idx += 1
+                        await asyncio.sleep(0.5 * (attempt + 1))
+                        continue
 
             if started_streaming:
                 break
 
         except Exception as exc:
             if attempt < MAX_RETRIES - 1:
-                acc_idx += 1
-                await asyncio.sleep(0.6 * (attempt + 1))
+                await asyncio.sleep(0.5 * (attempt + 1))
                 continue
-            yield {
-                "id": chat_id,
-                "object": "chat.completion.chunk",
-                "created": created_ts,
-                "model": model,
-                "choices": [{
-                    "index": 0,
-                    "delta": {"content": f"\n\n[Z.ai Stream Connection Error: {str(exc)}]"},
-                    "finish_reason": "error",
-                }],
-            }
-            return
+            raise
+        finally:
+            if conversation_id and active_access_token:
+                asyncio.create_task(_delete_conversation(conversation_id, assistant_id, active_access_token))
 
-    # Final stop or error chunk
-    if not started_streaming:
-        yield {
-            "id": chat_id,
-            "object": "chat.completion.chunk",
-            "created": created_ts,
-            "model": model,
-            "choices": [{
-                "index": 0,
-                "delta": {"content": "⚠️ Eclipse Notice: Upstream session returned no content. Please refresh your Z.ai or Gemini account in Eclipse Dashboard."},
-                "finish_reason": "error",
-            }],
-        }
-    else:
-        yield {
-            "id": chat_id,
-            "object": "chat.completion.chunk",
-            "created": created_ts,
-            "model": model,
-            "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
-        }
+    # Final stop chunk
+    yield {
+        "id": chat_id,
+        "object": "chat.completion.chunk",
+        "created": created_ts,
+        "model": model,
+        "choices": [{"index": 0, "delta": {}, "finish_reason": "stop"}],
+    }
